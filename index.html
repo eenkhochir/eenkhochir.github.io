@@ -1,0 +1,165 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enkh-Ochir Erdenebat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            height: 100vh;
+        }
+        .header {
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==') repeat;
+            padding: 50px;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .header h1 {
+            font-size: 6em;
+            color: #000;
+            margin: 0;
+        }
+        .social-buttons {
+            margin-top: 30px;
+        }
+        .social-buttons a {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 0 10px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+        }
+        .social-buttons a:hover {
+            background-color: #0056b3;
+        }
+        .social-buttons .youtube::before {
+            content: "\f167";
+            font-family: "Font Awesome 5 Brands";
+            margin-right: 5px;
+        }
+        .social-buttons .instagram::before {
+            content: "\f16d";
+            font-family: "Font Awesome 5 Brands";
+            margin-right: 5px;
+        }
+        .social-buttons .facebook::before {
+            content: "\f099";
+            font-family: "Font Awesome 5 Brands";
+            margin-right: 5px;
+        }
+        .social-buttons .github::before {
+            content: "\f09b";
+            font-family: "Font Awesome 5 Brands";
+            margin-right: 5px;
+        }
+        .social-buttons .linkedin::before {
+            content: "\f0e1";
+            font-family: "Font Awesome 5 Brands";
+            margin-right: 5px;
+        }
+        .social-buttons .email::before {
+            content: "\f0e0";
+            font-family: "Font Awesome 5 Free";
+            margin-right: 5px;
+        }
+        .about-me {
+            background-color: #007BFF;
+            color: white;
+            padding: 40px;
+            margin-top: 0;
+            height: 30vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .about-me h2 {
+            font-size: 2.5em;
+            margin: 0 0 20px;
+        }
+        .about-me p {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .about-me a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #FFA500;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .about-me a:hover {
+            background-color: #cc8400;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Enkh-Ochir Erdenebat</h1>
+        <div class="social-buttons">
+            <a href="https://www.youtube.com/@enkhochirerdenebat3226" class="youtube">YouTube</a>
+            <a href="https://www.instagram.com/" class="instagram">Instagram</a>
+            <a href="https://www.facebook.com/enkhochir.erdenebat" class="facebook">Facebook</a>
+            <a href="https://github.com/eenkhochir" class="github">GitHub</a>
+            <a href="#" class="linkedin">LinkedIn</a>
+            <a href="#" class="email">Email</a>
+        </div>
+    </div>
+    <div class="about-me">
+        <h2>About Me</h2>
+        <p>I am a 20-year-old from Mongolia and I am currently a junior studying Computer Science at National University of Mongolia. I am frequently known by my nickname Echo.</p>
+        <p>I play video games in my freetime, I have more than 2.5k hours on Dota2 but lately I have been playing CS2. I also have quite a lot of experience in Competitive Programming. I currently work in company called Datadeus as a developer!</p>
+        <a href="#">Read More</a>
+    </div>
+</body>
+</html>
