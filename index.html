@@ -35,9 +35,9 @@
 
   <div class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-xl shadow-lg">
     <div class="text-center">
-      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Handwritten Math Grader</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Математик хариу шалгагч</h1>
       <p class="mt-2 text-sm sm:text-base text-gray-600">
-        Upload the <strong>question image</strong> and the <strong>student's answer image</strong>.
+        Асуулт болон хариултын зургийг оруулж 'Шалга' товчийг дараарай.
       </p>
     </div>
 
@@ -45,11 +45,11 @@
 
       <div>
         <label for="question-upload" class="file-input-label" id="question-drop-zone">
-          <span class="block text-lg font-semibold text-gray-700 mb-2">Question Image</span>
+          <span class="block text-lg font-semibold text-gray-700 mb-2">Асуултын зураг</span>
           <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
-          <span class="block text-xs text-gray-500">Upload the math question image.</span>
+          <span class="block text-xs text-gray-500">Асуултын зургийг оруул.</span>
         </label>
         <input id="question-upload" class="sr-only" type="file" accept="image/*">
         <div id="question-preview-container" class="hidden mt-2">
@@ -60,11 +60,11 @@
 
       <div>
         <label for="answer-upload" class="file-input-label" id="answer-drop-zone">
-          <span class="block text-lg font-semibold text-gray-700 mb-2">Student Answer Image</span>
+          <span class="block text-lg font-semibold text-gray-700 mb-2">Хариултын зураг</span>
           <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
-          <span class="block text-xs text-gray-500">Upload the student's handwritten answer image.</span>
+          <span class="block text-xs text-gray-500">Хариултын зургийг оруул.</span>
         </label>
         <input id="answer-upload" class="sr-only" type="file" accept="image/*">
         <div id="answer-preview-container" class="hidden mt-2">
@@ -78,11 +78,11 @@
         class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         disabled
       >
-        Check Answer
+        Шалга
       </button>
 
       <div id="result-container" class="hidden pt-4 border-t border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-800">Result:</h2>
+        <h2 class="text-lg font-semibold text-gray-800">Үр дүн:</h2>
         <div id="result-content" class="mt-2 p-4 rounded-lg bg-gray-50 text-gray-700 text-sm whitespace-pre-wrap"></div>
       </div>
 
@@ -152,7 +152,7 @@
         `;
         resultContainer.classList.remove('hidden');
         resultContent.className = 'mt-2 p-4 rounded-lg bg-gray-100 text-gray-700 text-sm';
-        resultContent.textContent = 'Checking... Please wait.';
+        resultContent.textContent = 'Шалгаж байна... Түр хүлээнэ үү.';
       } else {
         checkButton.innerHTML = 'Check Answer';
         toggleButton();
@@ -177,10 +177,10 @@
       resultContent.className = `mt-2 p-4 rounded-lg text-sm ${bg}`;
       resultContent.innerHTML = `
         <h3 class="text-base font-bold mb-2">${title}</h3>
-        <p><strong>OCR extracted question:</strong><br>${question_text || '<em>(not detected)</em>'}</p>
-        <p class="mt-2"><strong>AI solved correct answer as:</strong><br>${correct_answer || '<em>(not provided)</em>'}</p>
-        <p class="mt-2"><strong>OCR read student answer as:</strong><br>${student_answer || '<em>(not detected)</em>'}</p>
-        <p class="mt-2"><strong>Explanation:</strong><br>${explanation || '<em>(no explanation)</em>'}</p>
+        <p><strong>OCR Асуултын зурагнаас:</strong><br>${question_text || '<em>(not detected)</em>'}</p>
+        <p class="mt-2"><strong>AI -ын бодсон үр дүн:</strong><br>${correct_answer || '<em>(not provided)</em>'}</p>
+        <p class="mt-2"><strong>OCR хариултын зурагнаас:</strong><br>${student_answer || '<em>(not detected)</em>'}</p>
+        <p class="mt-2"><strong>Тайлбар:</strong><br>${explanation || '<em>(no explanation)</em>'}</p>
       `;
 
       console.log('Full AI result:', data);
