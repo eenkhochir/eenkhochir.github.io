@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        var davhar = 9;
+        var orts = 3;
+        var ail = 4;
+        var toot = parseInt(prompt("toot"))
+        if(toot > davhar*orts*ail || toot<=0){
+            document.write("buruu toot oruulsan baina<br>");
+            // return;
+        }
+        toot--;
+        var ortsnii_niit_ail=ail*davhar;
+        var heddeh_orts = Math.floor(toot / ortsnii_niit_ail) + 1;
+        toot = toot % ortsnii_niit_ail;
+        var heddeh_davhar = Math.floor(toot / ail) + 1;
+        var heddeh_haalga = toot % ail + 1;
+        document.write(heddeh_orts)
+        document.write("-r ortsnii ")
+        document.write(heddeh_davhar)
+        document.write(" davhriin ")
+        document.write(heddeh_haalga)
+        document.write(" dahi haalga ")
+    </script>
+</head>
+<body></body>
+</body>
+</html>

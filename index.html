@@ -1,165 +1,305 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enkh-Ochir Erdenebat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-            height: 100vh;
-        }
-        .header {
-            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==') repeat;
-            padding: 50px;
-            height: 70vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .header h1 {
-            font-size: 6em;
-            color: #000;
-            margin: 0;
-        }
-        .social-buttons {
-            margin-top: 30px;
-        }
-        .social-buttons a {
-            display: inline-block;
-            padding: 15px 25px;
-            margin: 0 10px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 1.2em;
-        }
-        .social-buttons a:hover {
-            background-color: #0056b3;
-        }
-        .social-buttons .youtube::before {
-            content: "\f167";
-            font-family: "Font Awesome 5 Brands";
-            margin-right: 5px;
-        }
-        .social-buttons .instagram::before {
-            content: "\f16d";
-            font-family: "Font Awesome 5 Brands";
-            margin-right: 5px;
-        }
-        .social-buttons .facebook::before {
-            content: "\f099";
-            font-family: "Font Awesome 5 Brands";
-            margin-right: 5px;
-        }
-        .social-buttons .github::before {
-            content: "\f09b";
-            font-family: "Font Awesome 5 Brands";
-            margin-right: 5px;
-        }
-        .social-buttons .linkedin::before {
-            content: "\f0e1";
-            font-family: "Font Awesome 5 Brands";
-            margin-right: 5px;
-        }
-        .social-buttons .email::before {
-            content: "\f0e0";
-            font-family: "Font Awesome 5 Free";
-            margin-right: 5px;
-        }
-        .about-me {
-            background-color: #007BFF;
-            color: white;
-            padding: 40px;
-            margin-top: 0;
-            height: 30vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .about-me h2 {
-            font-size: 2.5em;
-            margin: 0 0 20px;
-        }
-        .about-me p {
-            font-size: 1.2em;
-            margin: 10px 0;
-        }
-        .about-me a {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #FFA500;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .about-me a:hover {
-            background-color: #cc8400;
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OCR+AI math grader</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .file-input-label {
+      display: block;
+      border: 2px dashed #cbd5e1; /* gray-300 */
+      border-radius: 0.5rem;      /* rounded-lg */
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .file-input-label:hover,
+    .file-input-label.dragover {
+      background-color: #f1f5f9;  /* gray-100 */
+      border-color: #94a3b8;      /* gray-400 */
+    }
+  </style>
 </head>
-<body>
-    <div class="header">
-        <h1>Enkh-Ochir Erdenebat</h1>
-        <div class="social-buttons">
-            <a href="https://www.youtube.com/@enkhochirerdenebat3226" class="youtube">YouTube</a>
-            <a href="https://www.instagram.com/" class="instagram">Instagram</a>
-            <a href="https://www.facebook.com/enkhochir.erdenebat" class="facebook">Facebook</a>
-            <a href="https://github.com/eenkhochir" class="github">GitHub</a>
-            <a href="#" class="linkedin">LinkedIn</a>
-            <a href="#" class="email">Email</a>
+<body class="bg-gray-100 flex items-center justify-center min-h-full p-4 sm:p-6">
+
+  <div class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-xl shadow-lg">
+    <div class="text-center">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Handwritten Math Grader</h1>
+      <p class="mt-2 text-sm sm:text-base text-gray-600">
+        Upload the <strong>question image</strong> and the <strong>student's answer image</strong>.
+      </p>
+    </div>
+
+    <div class="mt-6 space-y-6">
+
+      <div>
+        <label for="question-upload" class="file-input-label" id="question-drop-zone">
+          <span class="block text-lg font-semibold text-gray-700 mb-2">Question Image</span>
+          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span class="block text-xs text-gray-500">Upload the math question image.</span>
+        </label>
+        <input id="question-upload" class="sr-only" type="file" accept="image/*">
+        <div id="question-preview-container" class="hidden mt-2">
+          <p class="text-xs text-gray-500 mb-1">Preview:</p>
+          <img id="question-preview" class="w-full rounded-lg border border-gray-200" alt="Question preview">
         </div>
+      </div>
+
+      <div>
+        <label for="answer-upload" class="file-input-label" id="answer-drop-zone">
+          <span class="block text-lg font-semibold text-gray-700 mb-2">Student Answer Image</span>
+          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span class="block text-xs text-gray-500">Upload the student's handwritten answer image.</span>
+        </label>
+        <input id="answer-upload" class="sr-only" type="file" accept="image/*">
+        <div id="answer-preview-container" class="hidden mt-2">
+          <p class="text-xs text-gray-500 mb-1">Preview:</p>
+          <img id="answer-preview" class="w-full rounded-lg border border-gray-200" alt="Answer preview">
+        </div>
+      </div>
+
+      <button
+        id="check-button"
+        class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled
+      >
+        Check Answer
+      </button>
+
+      <div id="result-container" class="hidden pt-4 border-t border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800">Result:</h2>
+        <div id="result-content" class="mt-2 p-4 rounded-lg bg-gray-50 text-gray-700 text-sm whitespace-pre-wrap"></div>
+      </div>
+
     </div>
-    <div class="about-me">
-        <h2>About Me</h2>
-        <p>I am a 20-year-old from Mongolia and I am currently a junior studying Computer Science at National University of Mongolia. I am frequently known by my nickname Echo.</p>
-        <p>I play video games in my freetime, I have more than 2.5k hours on Dota2 but lately I have been playing CS2. I also have quite a lot of experience in Competitive Programming. I currently work in company called Datadeus as a developer!</p>
-        <a href="#">Read More</a>
-    </div>
+  </div>
+
+  <script type="module">
+    const questionInput = document.getElementById('question-upload');
+    const answerInput = document.getElementById('answer-upload');
+    const questionPreview = document.getElementById('question-preview');
+    const answerPreview = document.getElementById('answer-preview');
+    const questionPreviewContainer = document.getElementById('question-preview-container');
+    const answerPreviewContainer = document.getElementById('answer-preview-container');
+    const checkButton = document.getElementById('check-button');
+    const resultContainer = document.getElementById('result-container');
+    const resultContent = document.getElementById('result-content');
+
+    let questionImg64 = null;
+    let answerImg64 = null;
+    let qType = null;
+    let aType = null;
+
+    questionInput.addEventListener('change', (e) => handleImage(e, true));
+    answerInput.addEventListener('change', (e) => handleImage(e, false));
+    checkButton.addEventListener('click', runGrading);
+
+    function handleImage(event, isQuestion) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload a valid image file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (isQuestion) {
+          questionImg64 = e.target.result;
+          qType = file.type;
+          questionPreview.src = questionImg64;
+          questionPreviewContainer.classList.remove('hidden');
+        } else {
+          answerImg64 = e.target.result;
+          aType = file.type;
+          answerPreview.src = answerImg64;
+          answerPreviewContainer.classList.remove('hidden');
+        }
+        toggleButton();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function toggleButton() {
+      checkButton.disabled = !(questionImg64 && answerImg64);
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        checkButton.disabled = true;
+        checkButton.innerHTML = `
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Checking...</span>
+        `;
+        resultContainer.classList.remove('hidden');
+        resultContent.className = 'mt-2 p-4 rounded-lg bg-gray-100 text-gray-700 text-sm';
+        resultContent.textContent = 'Checking... Please wait.';
+      } else {
+        checkButton.innerHTML = 'Check Answer';
+        toggleButton();
+      }
+    }
+
+    function showError(message) {
+      resultContainer.classList.remove('hidden');
+      resultContent.className = 'mt-2 p-4 rounded-lg bg-red-100 text-red-700 text-sm';
+      resultContent.innerHTML = `
+        <strong>Error:</strong> ${message}
+      `;
+    }
+
+    function displayResult(data) {
+      const { question_text, correct_answer, student_answer, is_correct, explanation } = data;
+
+      const bg = is_correct ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+      const title = is_correct ? 'Correct ✅' : 'Incorrect ❌';
+
+      resultContainer.classList.remove('hidden');
+      resultContent.className = `mt-2 p-4 rounded-lg text-sm ${bg}`;
+      resultContent.innerHTML = `
+        <h3 class="text-base font-bold mb-2">${title}</h3>
+        <p><strong>OCR extracted question:</strong><br>${question_text || '<em>(not detected)</em>'}</p>
+        <p class="mt-2"><strong>AI solved correct answer as:</strong><br>${correct_answer || '<em>(not provided)</em>'}</p>
+        <p class="mt-2"><strong>OCR read student answer as:</strong><br>${student_answer || '<em>(not detected)</em>'}</p>
+        <p class="mt-2"><strong>Explanation:</strong><br>${explanation || '<em>(no explanation)</em>'}</p>
+      `;
+
+      console.log('Full AI result:', data);
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeout = 20000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      const mergedOptions = { ...options, signal: controller.signal };
+
+      try {
+        const response = await fetch(url, mergedOptions);
+        clearTimeout(id);
+        return response;
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
+      }
+    }
+
+    async function runGrading() {
+      if (!questionImg64 || !answerImg64) return;
+
+      setLoading(true);
+
+      try {
+        const baseQ = questionImg64.split(',')[1];
+        const baseA = answerImg64.split(',')[1];
+
+        const apiKey = "AIzaSyBPMti6NBrIZAlTlqF-kDC5xn5ut9d0kuY"; // <-- put your key here
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        const prompt = `
+You are grading a student's handwritten math solution.
+
+Image 1: the original math question.
+Image 2: the student's handwritten answer.
+
+1. Read and transcribe the math question from Image 1.
+2. Solve the question yourself.
+3. Read and transcribe the student's answer from Image 2.
+4. Determine if the student's answer is mathematically correct.
+5. Respond ONLY as a JSON object with this exact structure (no extra text):
+
+{
+  "question_text": "string - the question you read from Image 1",
+  "correct_answer": "string - the correct answer in a simple form",
+  "student_answer": "string - the answer you read from Image 2",
+  "is_correct": true or false,
+  "explanation": "string - a brief explanation of your judgement"
+}
+        `.trim();
+
+        const payload = {
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }]
+            },
+            {
+              role: "user",
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: qType,
+                    data: baseQ
+                  }
+                }
+              ]
+            },
+            {
+              role: "user",
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: aType,
+                    data: baseA
+                  }
+                }
+              ]
+            }
+          ]
+        };
+
+        const res = await fetchWithTimeout(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }, 20000);
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API error ${res.status}: ${text}`);
+        }
+
+        const json = await res.json();
+
+        const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawText) {
+          console.error('Unexpected API response:', json);
+          throw new Error('No text content returned from the model.');
+        }
+
+        const cleaned = rawText
+          .replace(/^```json\s*/i, '')
+          .replace(/^```\s*/i, '')
+          .replace(/```$/i, '')
+          .trim();
+
+        const data = JSON.parse(cleaned);
+        displayResult(data);
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message || 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+  </script>
 </body>
 </html>

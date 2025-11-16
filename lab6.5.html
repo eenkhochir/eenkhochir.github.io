@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        const now = new Date();
+        hour = now.getHours();
+        minute = now.getMinutes();
+        second = now.getSeconds();
+        var exp=0;
+        if(hour<=0 && hour<12){
+            exp=2;
+        }
+        else{
+            exp=0.5;
+        }
+        var input = prompt('too oruul');
+        document.write(input**exp);
+    </script>
+</head>
+<body></body>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        var tuulai = 18;
+        var chono = 25;
+        var dif=(chono-tuulai)/3.6; 
+        var zai = prompt('tuulai chono 2iin hoorondoh zai(meter)');
+        if(zai<0){
+            document.write('hoorondoh zai surug baij bolohgui<br>');
+        }
+        var second = zai/dif;
+        var minute= Math.floor(second/60);
+        second=second%60;
+        document.write("minute: ")
+        document.write(minute);
+        document.write("<br>")
+        document.write("second: ")
+        document.write(second)
+
+    </script>
+</head>
+<body></body>
+</body>
+</html>

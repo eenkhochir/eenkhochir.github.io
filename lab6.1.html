@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        var x=parseInt(prompt('garaas ugsun too'));
+        x = Math.abs(x);
+        var sum=0;
+        while(x!=0){
+            sum+=x%10;
+            x=Math.floor(x/10);
+            // x=Math.floor()
+            // document.write(x);
+            // document.write("<br>")
+        }
+        var rev=0;
+        var save=sum;
+        document.write("tsifruudiin niilber: ")
+        document.write(sum);
+        document.write("<br>")
+        document.write("niilber ni palindrome eseh: ")
+        while(sum!=0){
+            rev=rev*10+sum%10;
+            sum=Math.floor(sum/10);
+        }
+        if(save==rev){
+            document.write("YES");
+        }
+        else{
+            document.write("NO");
+        }
+
+    </script>
+</head>
+<body></body>
+</body>
+</html>
