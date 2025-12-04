@@ -4,81 +4,272 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medium – Where Good Ideas Find You</title>
-
+    <link rel="sitemap" type="application/xml" href="https://eenkhochir.github.io/sitemap.xml">
     <meta name="description" content="Read and write stories on technology, self-growth, creativity, and culture. Join millions of readers and writers on Medium—the home of big ideas.">
     <meta name="keywords" content="Medium, write online, read stories, blogging platform, personal growth, technology, creative writing">
+    <meta name="author" content="Medium">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://medium.com/">
+    <meta property="og:title" content="Medium – Where Good Ideas Find You">
+    <meta property="og:description" content="Read and write inspiring stories on technology, self-growth, creativity, and culture. Join millions on Medium — the home of big ideas.">
+    <meta property="og:image" content="https://medium.com/og-image.jpg">
+    <meta property="og:url" content="https://medium.com/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Medium – Where Good Ideas Find You">
+    <meta name="twitter:description" content="Read and write inspiring stories on technology, self-growth, creativity, and culture. Join millions on Medium.">
+    <link rel="sitemap" href="https://medium.com/sitemap.xml">
+    <link rel="sitemap" type="application/xml" href="/lab6/sitemap.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Medium",
+      "url": "https://medium.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://medium.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Medium",
+      "url": "https://medium.com/",
+      "logo": "https://medium.com/logo.svg",
+      "sameAs": [
+        "https://twitter.com/medium",
+        "https://www.facebook.com/medium",
+        "https://www.linkedin.com/company/medium-com"
+      ]
+    }
+    </script>
+    
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        header{border-bottom:1px solid #000;padding:25px 0;}
-        nav{max-width:1192px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 24px;flex-wrap:wrap;}
-        .logo{font-size:32px;font-weight:400;color:#000;text-decoration:none;}
-        .nav-links{display:flex;align-items:center;gap:32px;}
-        .nav-links a{text-decoration:none;color:#000;font-size:14px;}
-        .btn{padding:8px 16px;border-radius:99px;text-decoration:none;font-size:14px;cursor:pointer;}
-        .btn-dark{background:#191919;color:#fff;border:none;}
-        .hero{padding:80px 0 120px;position:relative;border-bottom:1px solid #000;}
-        .hero-content{max-width:1192px;margin:0 auto;padding:0 24px;}
-        .hero h1{font-size:106px;font-weight:400;line-height:1.05;margin-bottom:35px;letter-spacing:-0.05em;}
-        .hero p{font-size:24px;margin-bottom:50px;max-width:550px;}
-        footer{background:#fff;border-top:1px solid #F2F2F2;padding:40px 24px;}
-        .footer-content{max-width:1192px;margin:0 auto;display:flex;flex-wrap:wrap;}
-        .footer-links{display:flex;flex-wrap:wrap;gap:24px;}
-        .footer-links a{text-decoration:none;color:#6B6B6B;font-size:13px;margin-bottom:8px;}
-        .footer-links a:hover{color:#000;}
-        .hidden-seo-content{display:none;}
-        @media (max-width:768px){
-            .hero h1{font-size:56px;}
-            .nav-links{flex-direction:column;gap:16px;align-items:flex-start;width:100%;}
-            .btn{width:100%;padding:12px;font-size:16px;}
-            footer{padding:20px 24px;}
-            .footer-links{flex-direction:column;align-items:flex-start;width:100%;}
-            .footer-links a{font-size:12px;margin-bottom:10px;}
+        header {
+            border-bottom: 1px solid #000;
+            padding: 25px 0;
+        }
+        nav {
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 400;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav2 {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .nav2 a {
+            text-decoration: none;
+            color: #000;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 99px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer; /* Added for interactive elements */
+        }
+        .btn-dark {
+            background: #191919;
+            color: #fff;
+            border: none; /* Changed <a> to <button> for better semantics, added border:none */
+        }
+        /* Hero Section (div1) Styles */
+        .div1 {
+            padding: 80px 0 120px;
+            position: relative;
+            border-bottom: 1px solid #000;
+        }
+        .div1-content {
+            max-width: 1192px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .div1 h1 {
+            font-size: 106px;
+            font-weight: 400;
+            line-height: 1.05;
+            margin-bottom: 35px;
+            letter-spacing: -0.05em; /* Added for better typography */
+        }
+        .div1 p {
+            font-size: 24px;
+            margin-bottom: 50px;
+            max-width: 550px;
+        }
+        /* Footer Styles */
+        footer {
+            background: #fff;
+            border-top: 1px solid #F2F2F2;
+            padding: 40px 24px;
+        }
+        .footer1 { /* Note: This class is not used in your footer HTML but kept for reference */
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .footer2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .footer2 a {
+            text-decoration: none;
+            color: #6B6B6B;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .footer2 a:hover {
+            color: #000;
+        }
+        /* Modal (popup) Styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup.active {
+            display: flex;
+        }
+        .popup-content {
+            background: #fff;
+            padding: 60px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        .popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer; /* Added cursor pointer */
+            color: #6B6B6B;
+        }
+        .popup-title {
+            font-size: 32px;
+            font-family: 'Charter', Georgia, serif; /* Added font for Medium-like look */
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .sign-in-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sign-in-btn {
+            padding: 12px 24px;
+            border: 1px solid #E6E6E6;
+            border-radius: 99px;
+            background: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s; /* Added transition */
+        }
+        .sign-in-btn:hover {
+            background: #F9F9F9;
+        }
+        .popup-footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+        .popup-footer a {
+            color: #1A8917;
+            text-decoration: none;
+        }
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .div1 h1 {
+                font-size: 56px;
+            }
+            .nav2 {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+            footer {
+                padding: 20px 24px;
+            }
+            .footer2 {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+            .footer2 a {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
         }
     </style>
-
-    <style id="modal-styles" media="print" onload="this.media='all'">
-        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
-        .modal.active{display:flex;}
-        .modal-content{background:#fff;padding:60px;border-radius:8px;max-width:500px;width:90%;position:relative;}
-        .modal-close{position:absolute;top:20px;right:20px;font-size:28px;cursor:pointer;color:#6B6B6B;}
-        .modal-title{font-size:32px;font-family:'Charter', Georgia, serif;text-align:center;margin-bottom:40px;}
-        .sign-in-options{display:flex;flex-direction:column;gap:16px;}
-        .sign-in-btn{padding:12px 24px;border:1px solid #E6E6E6;border-radius:99px;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 0.2s;}
-        .sign-in-btn:hover{background:#F9F9F9;}
-        .modal-footer{text-align:center;margin-top:32px;font-size:14px;color:#6B6B6B;}
-        .modal-footer a{color:#1A8917;text-decoration:none;}
-    </style>
-    <noscript><link rel="stylesheet" href="#modal-styles"></noscript>
 </head>
 <body>
 
     <header>
         <nav>
             <a href="/" class="logo" aria-label="Medium homepage">Medium</a>
-            <div class="nav-links">
-                <a href="/lab6/our-story.html">Our story</a>
+            <div class="nav2">
+                <a href="/lab6/our-story.html">Our Story</a>
                 <a href="/lab6/membership.html">Membership</a>
-                <a href="#" onclick="showModal()">Write</a>
-                <a href="#" onclick="showModal()">Sign in</a>
-                <button type="button" class="btn btn-dark" onclick="showModal()">Get started</button>
+                <a href="#" onclick="showpopup()">Write</a>
+                <a href="#" onclick="showpopup()">Sign in</a>
+                <button type="button" class="btn btn-dark" onclick="showpopup()">Get Started</button>
             </div>
         </nav>
     </header>
 
     <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Human<br>stories & ideas</h1>
-                <p>A place to read, write, and deepen your understanding</p>
-                <button type="button" class="btn btn-dark" onclick="showModal()">Start reading</button>
+        <section class="div1">
+            <div class="div1-content">
+                <h1>Human Stories & Ideas</h1>
+                <p>A place to read, write, and deepen your understanding — of technology, culture, creativity, self-improvement, and everything that matters.</p>
+                <button type="button" class="btn btn-dark" onclick="showpopup()">Start Reading</button>
             </div>
         </section>
-        
-        <div class="hidden-seo-content" style="max-width:1192px;margin:0 auto;padding:24px;">
+
+        <section style="max-width:1192px;margin:0 auto;padding:24px;">
             <h2>Popular Topics on Medium</h2>
             <p>Explore thousands of stories in:</p>
             <ul>
@@ -88,6 +279,9 @@
                 <li><a href="https://www.google.com/">Health & Wellness</a> – fitness, mental health</li>
                 <li><a href="https://www.google.com/">Science</a> – research, psychology, environment</li>
             </ul>
+        </section>
+
+        <section style="max-width:1192px;margin:0 auto;padding:24px;">
             <h2>Why Writers Love Medium</h2>
             <p>Every day, thousands of people <a href="https://www.google.com/">earn money writing on Medium</a> through the <a href="https://medium.com/creators">Partner Program</a>. Join top publications like <a href="https://onezero.medium.com/">OneZero</a>, <a href="https://marker.medium.com/">Marker</a>, and <a href="https://gen.medium.com/">GEN</a>.</p>
             <p>Recommended reading:</p>
@@ -96,33 +290,32 @@
                 <li><a href="https://help.medium.com" class="external-link" target="_blank" rel="noopener">Medium Help Center</a></li>
                 <li><a href="https://medium.com/about" class="external-link" target="_blank" rel="noopener">About Medium</a></li>
             </ul>
+        </section>
+
+        <section style="max-width:1192px;margin:0 auto;padding:24px;">
             <h2>Join the World’s Best Reading & Writing Platform</h2>
             <p>Over 100 million readers come to Medium every month. Start writing today and reach an audience that cares.</p>
-            <p><a href="/lab6/membership.html" class="btn btn-dark">Get unlimited access – $5/month</a></p>
-        </div>
+            <p><button type="button" class="btn btn-dark" onclick="showpopup()">Get unlimited access – $5/month</button></p>
+        </section>
     </main>
 
     <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="#">Help</a>
-                <a href="#">Status</a>
-                <a href="#">About</a>
-                <a href="#">Careers</a>
-                <a href="#">Press</a>
-                <a href="#">Blog</a>
-                <a href="#">Privacy</a>
-                <a href="#">Rules</a>
-                <a href="#">Terms</a>
-                <a href="#">Text to speech</a>
+        <div style="max-width:1192px;margin:0 auto;padding:40px 24px;display:flex;flex-wrap:wrap;gap:32px;font-size:13px;color:#6b6b6b">
+            <div>
+                <a href="https://www.google.com/">About</a> • 
+                <a href="https://www.google.com/">Terms</a> • 
+                <a href="https://www.google.com/">Privacy</a> • 
+                <a href="https://help.medium.com" target="_blank" rel="noopener">Help</a> • 
+                <a href="https://www.google.com/">Write</a> • 
+                <a href="/lab6/membership.html">Membership</a>
             </div>
         </div>
     </footer>
-    
-    <div id="signInModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <h2 class="modal-title">Welcome back.</h2>
+
+    <div id="signInpopup" class="popup">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closepopup()">&times;</span>
+            <h2 class="popup-title">Welcome back.</h2>
             <div class="sign-in-options">
                 <button type="button" class="sign-in-btn">
                     <i class="fa-brands fa-google"></i>
@@ -131,7 +324,7 @@
                 <button type="button" class="sign-in-btn">
                     <i class="fa-brands fa-facebook"></i>
                     <span>Sign in with Facebook</span>
-                    </button>
+                </button>
                 <button type="button" class="sign-in-btn">
                     <i class="fa-brands fa-apple"></i>
                     <span>Sign in with Apple</span>
@@ -145,7 +338,7 @@
                     <span>Sign in with email</span>
                 </button>
             </div>
-            <div class="modal-footer">
+            <div class="popup-footer">
                 No account? <a href="#">Create one</a>
                 <br><br>
                 Forgot email or trouble signing in? <a href="#">Get help</a>
@@ -156,18 +349,10 @@
     </div>
 
     <script>
-        function showModal(){
-            document.getElementById('signInModal').classList.add('active');
-        }
-        function closeModal(){
-            document.getElementById('signInModal').classList.remove('active');
-        }
-        window.onclick = function(event){
-            const modal = document.getElementById('signInModal');
-            if(event.target == modal){
-                closeModal();
-            }
-        }
+        // Use consistent function names from your code block: showpopup and closepopup
+        function showpopup(){document.getElementById('signInpopup').classList.add('active')}
+        function closepopup(){document.getElementById('signInpopup').classList.remove('active')}
+        window.onclick=e=>{if(e.target===document.getElementById('signInpopup'))closepopup()}
     </script>
 </body>
 </html>
