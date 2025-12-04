@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /*?*
+Disallow: /search/
+
+Sitemap: https://eenkhochir.github.io/lab6/sitemap.xml
