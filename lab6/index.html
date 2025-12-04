@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medium – Where Good Ideas Find You</title>
+
     <link rel="sitemap" type="application/xml" href="https://eenkhochir.github.io/sitemap.xml">
     <meta name="description" content="Read and write stories on technology, self-growth, creativity, and culture. Join millions of readers and writers on Medium—the home of big ideas.">
     <meta name="keywords" content="Medium, write online, read stories, blogging platform, personal growth, technology, creative writing">
@@ -12,47 +13,15 @@
     <link rel="canonical" href="https://medium.com/">
     <meta property="og:title" content="Medium – Where Good Ideas Find You">
     <meta property="og:description" content="Read and write inspiring stories on technology, self-growth, creativity, and culture. Join millions on Medium — the home of big ideas.">
-    <meta property="og:image" content="https://medium.com/og-image.jpg">
     <meta property="og:url" content="https://medium.com/">
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Medium – Where Good Ideas Find You">
-    <meta name="twitter:description" content="Read and write inspiring stories on technology, self-growth, creativity, and culture. Join millions on Medium.">
-    <link rel="sitemap" href="https://medium.com/sitemap.xml">
     <link rel="sitemap" type="application/xml" href="/lab6/sitemap.xml">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Medium",
-      "url": "https://medium.com/",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://medium.com/search?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Medium",
-      "url": "https://medium.com/",
-      "logo": "https://medium.com/logo.svg",
-      "sameAs": [
-        "https://twitter.com/medium",
-        "https://www.facebook.com/medium",
-        "https://www.linkedin.com/company/medium-com"
-      ]
-    }
-    </script>
-    
+
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
     
     <style>
+        /* --- Header & Navigation Styles --- */
         header {
             border-bottom: 1px solid #000;
             padding: 25px 0;
@@ -72,12 +41,12 @@
             color: #000;
             text-decoration: none;
         }
-        .nav2 {
+        .nav-links {
             display: flex;
             align-items: center;
             gap: 32px;
         }
-        .nav2 a {
+        .nav-links a {
             text-decoration: none;
             color: #000;
             font-size: 14px;
@@ -87,60 +56,70 @@
             border-radius: 99px;
             text-decoration: none;
             font-size: 14px;
+            cursor: pointer;
         }
         .btn-dark {
             background: #191919;
             color: #fff;
+            border: none;
         }
-        .div1 {
+
+        /* --- Hero Section Styles --- */
+        .hero {
             padding: 80px 0 120px;
             position: relative;
             border-bottom: 1px solid #000;
         }
-        .div1-content {
+        .hero-content {
             max-width: 1192px;
             margin: 0 auto;
             padding: 0 24px;
         }
-        .div1 h1 {
+        .hero h1 {
             font-size: 106px;
             font-weight: 400;
             line-height: 1.05;
             margin-bottom: 35px;
+            letter-spacing: -0.05em;
         }
-        .div1 p {
+        .hero p {
             font-size: 24px;
             margin-bottom: 50px;
             max-width: 550px;
         }
+
+        /* --- Footer Styles --- */
         footer {
             background: #fff;
             border-top: 1px solid #F2F2F2;
             padding: 40px 24px;
         }
-        .footer1 {
+        .footer-content {
             max-width: 1192px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
             flex-wrap: wrap;
         }
-        .footer2 {
+        .footer-links {
             display: flex;
             flex-wrap: wrap;
             gap: 24px;
         }
-        .footer2 a {
+        .footer-links a {
             text-decoration: none;
             color: #6B6B6B;
             font-size: 13px;
             margin-bottom: 8px;
         }
-        .footer2 a:hover {
+        .footer-links a:hover {
             color: #000;
         }
-        .popup {
+        .hidden-seo-content {
+            display: none;
+        }
+
+        /* --- Modal Styles --- */
+        .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -152,10 +131,10 @@
             align-items: center;
             justify-content: center;
         }
-        .popup.active {
+        .modal.active {
             display: flex;
         }
-        .popup-content {
+        .modal-content {
             background: #fff;
             padding: 60px;
             border-radius: 8px;
@@ -163,15 +142,17 @@
             width: 90%;
             position: relative;
         }
-        .popup-close {
+        .modal-close {
             position: absolute;
             top: 20px;
             right: 20px;
             font-size: 28px;
+            cursor: pointer;
             color: #6B6B6B;
         }
-        .popup-title {
+        .modal-title {
             font-size: 32px;
+            font-family: 'Charter', Georgia, serif;
             text-align: center;
             margin-bottom: 40px;
         }
@@ -191,25 +172,28 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            transition: all 0.2s;
         }
         .sign-in-btn:hover {
             background: #F9F9F9;
         }
-        .popup-footer {
+        .modal-footer {
             text-align: center;
             margin-top: 32px;
             font-size: 14px;
             color: #6B6B6B;
         }
-        .popup-footer a {
+        .modal-footer a {
             color: #1A8917;
             text-decoration: none;
         }
+
+        /* --- Media Queries (Responsiveness) --- */
         @media (max-width: 768px) {
-            .div1 h1 {
+            .hero h1 {
                 font-size: 56px;
             }
-            .nav2 {
+            .nav-links {
                 flex-direction: column;
                 gap: 16px;
                 align-items: flex-start;
@@ -223,12 +207,12 @@
             footer {
                 padding: 20px 24px;
             }
-            .footer2 {
+            .footer-links {
                 flex-direction: column;
                 align-items: flex-start;
                 width: 100%;
             }
-            .footer2 a {
+            .footer-links a {
                 font-size: 12px;
                 margin-bottom: 10px;
             }
@@ -240,26 +224,26 @@
     <header>
         <nav>
             <a href="/" class="logo" aria-label="Medium homepage">Medium</a>
-            <div class="nav2">
-                <a href="/lab6/our-story.html">Our Story</a>
+            <div class="nav-links">
+                <a href="/lab6/our-story.html">Our story</a>
                 <a href="/lab6/membership.html">Membership</a>
-                <a href="/lab6/write.html">Write</a>
-                <a href="/lab6/signin.html">Sign in</a>
-                <a href="/lab6/membership.html" class="btn btn-dark">Get Started</a>
+                <a href="#" onclick="showModal()">Write</a>
+                <a href="#" onclick="showModal()">Sign in</a>
+                <button type="button" class="btn btn-dark" onclick="showModal()">Get started</button>
             </div>
         </nav>
     </header>
 
     <main>
-        <section class="div1">
-            <div class="div1-content">
-                <h1>Human Stories & Ideas</h1>
-                <p>A place to read, write, and deepen your understanding — of technology, culture, creativity, self-improvement, and everything that matters.</p>
-                <a href="/lab6/membership.html" class="btn btn-dark">Start Reading</a>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Human<br>stories & ideas</h1>
+                <p>A place to read, write, and deepen your understanding</p>
+                <button type="button" class="btn btn-dark" onclick="showModal()">Start reading</button>
             </div>
         </section>
-
-        <section>
+        
+        <div class="hidden-seo-content" style="max-width:1192px;margin:0 auto;padding:24px;">
             <h2>Popular Topics on Medium</h2>
             <p>Explore thousands of stories in:</p>
             <ul>
@@ -269,9 +253,6 @@
                 <li><a href="https://www.google.com/">Health & Wellness</a> – fitness, mental health</li>
                 <li><a href="https://www.google.com/">Science</a> – research, psychology, environment</li>
             </ul>
-        </section>
-
-        <section>
             <h2>Why Writers Love Medium</h2>
             <p>Every day, thousands of people <a href="https://www.google.com/">earn money writing on Medium</a> through the <a href="https://medium.com/creators">Partner Program</a>. Join top publications like <a href="https://onezero.medium.com/">OneZero</a>, <a href="https://marker.medium.com/">Marker</a>, and <a href="https://gen.medium.com/">GEN</a>.</p>
             <p>Recommended reading:</p>
@@ -280,34 +261,78 @@
                 <li><a href="https://help.medium.com" class="external-link" target="_blank" rel="noopener">Medium Help Center</a></li>
                 <li><a href="https://medium.com/about" class="external-link" target="_blank" rel="noopener">About Medium</a></li>
             </ul>
-        </section>
-
-        <section>
             <h2>Join the World’s Best Reading & Writing Platform</h2>
             <p>Over 100 million readers come to Medium every month. Start writing today and reach an audience that cares.</p>
             <p><a href="/lab6/membership.html" class="btn btn-dark">Get unlimited access – $5/month</a></p>
-        </section>
+        </div>
     </main>
 
     <footer>
-        <div style="max-width:1192px;margin:0 auto;padding:40px 24px;display:flex;flex-wrap:wrap;gap:32px;font-size:13px;color:#6b6b6b">
-            <div>
-                <a href="https://www.google.com/">About</a> • 
-                <a href="https://www.google.com/">Terms</a> • 
-                <a href="https://www.google.com/">Privacy</a> • 
-                <a href="https://help.medium.com" target="_blank" rel="noopener">Help</a> • 
-                <a href="https://www.google.com/">Write</a> • 
-                <a href="/lab6/membership.html">Membership</a>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">Help</a>
+                <a href="#">Status</a>
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Blog</a>
+                <a href="#">Privacy</a>
+                <a href="#">Rules</a>
+                <a href="#">Terms</a>
+                <a href="#">Text to speech</a>
             </div>
         </div>
     </footer>
-    <div id="signInpopup" class="popup">
+    
+    <div id="signInModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title">Welcome back.</h2>
+            <div class="sign-in-options">
+                <button type="button" class="sign-in-btn">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Sign in with Google</span>
+                </button>
+                <button type="button" class="sign-in-btn">
+                    <i class="fa-brands fa-facebook"></i>
+                    <span>Sign in with Facebook</span>
+                    </button>
+                <button type="button" class="sign-in-btn">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Sign in with Apple</span>
+                </button>
+                <button type="button" class="sign-in-btn">
+                    <i class="fa-solid fa-x"></i>
+                    <span>Sign in with X</span>
+                </button>
+                <button type="button" class="sign-in-btn">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Sign in with email</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                No account? <a href="#">Create one</a>
+                <br><br>
+                Forgot email or trouble signing in? <a href="#">Get help</a>
+                <br><br>
+                By clicking "Sign in", you accept Medium's Terms of Service and Privacy Policy.
+            </div>
+        </div>
     </div>
 
     <script>
-        function showpopup(){document.getElementById('signInpopup').classList.add('active')}
-        function closepopup(){document.getElementById('signInpopup').classList.remove('active')}
-        window.onclick=e=>{if(e.target===document.getElementById('signInpopup'))closepopup()}
+        function showModal() {
+            document.getElementById('signInModal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('signInModal').classList.remove('active');
+        }
+        window.onclick = function(event) {
+            const modal = document.getElementById('signInModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 </html>
