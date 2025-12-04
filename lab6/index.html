@@ -3,439 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Primary SEO Tags -->
-    <title>Medium – Where Good Ideas Find You | Read and Write Stories That Matter</title>
-    <meta name="description" content="Medium is an open platform where readers find dynamic thinking, and writers share big ideas on technology, science, business, culture, self-improvement, productivity, health, and more. Join millions exploring insightful stories every day.">
-    <meta name="keywords" content="Medium, blogging platform, online publishing, technology articles, personal development, startup stories, science writing, creative nonfiction, long-form writing, read online, write online">
-    <meta name="author" content="Medium">
+    <meta name="description" content="Medium is a platform where good ideas and human stories find you. Discover, read, and write articles, blogs, and stories to deepen your understanding on various topics including technology, personal development, culture, and more. Join the community now!">
+    <meta name="keywords" content="Medium, blog, online writing platform, articles, human stories, creative writing, personal development, membership, start writing, read ideas, creative community, content creation, technology blogs, education blogs">
+    <meta name="author" content="Medium Team">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://medium.com/">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Medium – Where good ideas find you">
-    <meta property="og:description" content="A place to read, write, and deepen your understanding through thoughtful, expert, and personal stories on technology, culture, health, business, and life.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://medium.com/">
-    <meta property="og:image" content="https://medium.com/images/og-medium-home.jpg">
-    <meta property="og:site_name" content="Medium">
-
-    <!-- Twitter -->
+    <meta property="og:title" content="Medium - Where Good Ideas Find You">
+    <meta property="og:description" content="Join Medium to read and write about human stories, personal development, technology, culture, and more. Explore ideas and deepen your understanding on a variety of topics.">
+    <meta property="og:image" content="path_to_image.jpg">
+    <meta property="og:url" content="https://www.medium.com">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@medium">
-    <meta name="twitter:title" content="Medium – Where good ideas find you">
-    <meta name="twitter:description" content="Read and write thoughtful stories on technology, science, culture, startups, productivity, mental health, and more.">
-    <meta name="twitter:image" content="https://medium.com/images/og-medium-home.jpg">
+    <meta name="twitter:title" content="Medium - Where Good Ideas Find You">
+    <meta name="twitter:description" content="Discover new ideas, read insightful articles, and share your own stories on Medium. A platform that connects writers and readers from all over the world.">
+    <title>Medium - Where Good Ideas Find You</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
-    <!-- Preload Fonts (Medium uses Charter for body, so we simulate it) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Charter:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    
     <style>
-        :root {
-            --max-width: 1192px;
-            --text: #000;
-            --gray: #6b6b6b;
-            --light-gray: #f2f2f2;
-            --border: #000;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            line-height: 1.5;
-            color: var(--text);
-            background: #fff;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Charter', Georgia, serif;
-            font-weight: 400;
-        }
-        a { color: inherit; text-decoration: none; }
-        img { max-width: 100%; display: block; }
-
         header {
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid #000;
             padding: 25px 0;
-            position: sticky;
-            top: 0;
-            background: #fff;
-            z-index: 900;
         }
         nav {
-            max-width: var(--max-width);
+            max-width: 1192px;
             margin: 0 auto;
-            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 24px;
             flex-wrap: wrap;
-            gap: 20px;
         }
         .logo {
             font-size: 32px;
             font-weight: 400;
-            letter-spacing: -0.5px;
+            color: #000;
+            text-decoration: none;
         }
-        .nav-links {
+        .nav2 {
             display: flex;
             align-items: center;
             gap: 32px;
-            flex-wrap: wrap;
         }
-        .nav-links a {
-            font-size: 14.5px;
-            font-weight: 500;
+        .nav2 a {
+            text-decoration: none;
+            color: #000;
+            font-size: 14px;
         }
         .btn {
-            padding: 9px 18px;
+            padding: 8px 16px;
             border-radius: 99px;
-            font-size: 14.5px;
-            font-weight: 500;
-            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
         }
         .btn-dark {
             background: #191919;
             color: #fff;
         }
-        .btn-dark:hover { background: #000; }
-
-        /* Hero Section */
-        .hero {
-            padding: 100px 0 140px;
-            border-bottom: 1px solid var(--border);
+        .div1 {
+            padding: 80px 0 120px;
+            position: relative;
+            border-bottom: 1px solid #000;
         }
-        .hero-content {
-            max-width: var(--max-width);
+        .div1-content {
+            max-width: 1192px;
             margin: 0 auto;
             padding: 0 24px;
         }
-        .hero h1 {
+        .div1 h1 {
             font-size: 106px;
-            line-height: 1.02;
-            letter-spacing: -3px;
-            margin-bottom: 32px;
+            font-weight: 400;
+            line-height: 1.05;
+            margin-bottom: 35px;
         }
-        .hero p {
+        .div1 p {
             font-size: 24px;
-            line-height: 1.5;
-            max-width: 680px;
-            margin-bottom: 48px;
-            color: #1a1a1a;
+            margin-bottom: 50px;
+            max-width: 550px;
         }
-
-        /* Trending Topics */
-        .trending {
-            max-width: var(--max-width);
-            margin: 80px auto;
-            padding: 0 24px;
-        }
-        .trending h2 {
-            font-size: 36px;
-            margin-bottom: 40px;
-        }
-        .topics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 32px;
-        }
-        .topic-card {
-            border: 1px solid #e6e6e6;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
-        .topic-card:hover { transform: translateY(-4px); }
-        .topic-img {
-            height: 180px;
-            background: #f2f2f2;
-            background-size: cover;
-            background-position: center;
-        }
-        .topic-content {
-            padding: 20px;
-        }
-        .topic-content h3 {
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-        .topic-content p {
-            font-size: 15px;
-            color: var(--gray);
-        }
-
-        /* Why Medium Section */
-        .why-medium {
-            background: #fafafa;
-            padding: 100px 0;
-            border-top: 1px solid var(--light-gray);
-        }
-        .why-content {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            padding: 0 24px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 60px;
-        }
-        .feature h3 {
-            font-size: 28px;
-            margin-bottom: 16px;
-        }
-        .feature p {
-            font-size: 18px;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        /* Footer */
         footer {
             background: #fff;
-            border-top: 1px solid var(--light-gray);
-            padding: 60px 24px 40px;
+            border-top: 1px solid #F2F2F2;
+            padding: 40px 24px;
         }
-        .footer-grid {
-            max-width: var(--max-width);
+        .footer1 {
+            max-width: 1192px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 40px;
-            margin-bottom: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
-        .footer-column h4 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .footer2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
         }
-        .footer-column a {
-            display: block;
-            margin-bottom: 12px;
-            color: var(--gray);
-            font-size: 14px;
+        .footer2 a {
+            text-decoration: none;
+            color: #6B6B6B;
+            font-size: 13px;
+            margin-bottom: 8px;
         }
-        .footer-column a:hover { color: #000; }
-
-        /* Popup Modal */
+        .footer2 a:hover {
+            color: #000;
+        }
         .popup {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.75);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(4px);
         }
-        .popup.active { display: flex; }
+        .popup.active {
+            display: flex;
+        }
         .popup-content {
             background: #fff;
             padding: 60px;
-            border-radius: 12px;
-            max-width: 480px;
+            border-radius: 8px;
+            max-width: 500px;
             width: 90%;
             position: relative;
         }
         .popup-close {
             position: absolute;
-            top: 20px; right: 24px;
-            font-size: 32px;
-            color: #999;
-            cursor: pointer;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            color: #6B6B6B;
         }
         .popup-title {
-            font-size: 36px;
+            font-size: 32px;
             text-align: center;
             margin-bottom: 40px;
         }
+        .sign-in-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
         .sign-in-btn {
-            padding: 14px 24px;
-            border: 1.5px solid #e6e6e6;
+            padding: 12px 24px;
+            border: 1px solid #E6E6E6;
             border-radius: 99px;
             background: #fff;
             font-size: 16px;
-            font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            transition: all 0.2s;
         }
-        .sign-in-btn:hover { background: #f9f9f9; border-color: #ccc; }
-
-        /* Responsive */
+        .sign-in-btn:hover {
+            background: #F9F9F9;
+        }
+        .popup-footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+        .popup-footer a {
+            color: #1A8917;
+            text-decoration: none;
+        }
         @media (max-width: 768px) {
-            .hero h1 { font-size: 64px; letter-spacing: -2px; }
-            .hero p { font-size: 20px; }
-            .hero { padding: 80px 0; }
-            .nav-links { flex-direction: column; align-items: flex-start; gap: 16px; width: 100%; }
-            .btn { width: 100%; text-align: center; padding: 14px; }
+            .div1 h1 {
+                font-size: 56px;
+            }
+            .nav2 {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+            footer {
+                padding: 20px 24px;
+            }
+            .footer2 {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+            .footer2 a {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Medium",
-      "alternateName": "Medium.com",
-      "url": "https://medium.com/",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://medium.com/search?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
-
     <header>
-        <nav aria-label="Main navigation">
-            <a href="/" class="logo" aria-label="Medium homepage">Medium</a>
-            <div class="nav-links">
-                <a href="/our-story">Our story</a>
-                <a href="/membership">Membership</a>
-                <a href="#" onclick="showPopup(); return false;">Write</a>
-                <a href="#" onclick="showPopup(); return false;">Sign in</a>
-                <a href="#" class="btn btn-dark" onclick="showPopup(); return false;">Get started</a>
+        <nav>
+            <a href="index.html" class="logo" aria-label="Home Page">Medium</a>
+            <div class="nav2">
+                <a href="our-story.html" title="Our Story - Learn more about Medium's mission and vision">Our Story</a>
+                <a href="membership.html" title="Join Medium's Membership to unlock premium content">Membership</a>
+                <a href="#" onclick="showpopup()" title="Start writing your own stories and ideas on Medium">Write</a>
+                <a href="#" onclick="showpopup()" title="Sign in to your Medium account">Sign in</a>
+                <button class="btn btn-dark" onclick="showpopup()" title="Get started and become a part of Medium's creative community">Get Started</button>
             </div>
         </nav>
     </header>
-
     <main>
-        <!-- Hero -->
-        <section class="hero" aria-labelledby="hero-heading">
-            <div class="hero-content">
-                <h1 id="hero-heading">Human<br>stories &amp; ideas</h1>
-                <p>A place to read, write, and deepen your understanding of the world through powerful personal essays, expert analysis, and thought-provoking ideas on technology, science, culture, relationships, productivity, mental health, creativity, and more.</p>
-                <a href="#" class="btn btn-dark" onclick="showPopup(); return false;" style="font-size:18px;padding:14px 32px;">Start reading →</a>
+        <section class="div1">
+            <div class="div1-content">
+                <h1>Human Stories & Ideas</h1>
+                <p>Explore and engage with a wide range of topics. From technology and personal development to creative writing, Medium offers an extensive collection of human stories and ideas. Join thousands of writers and readers in a community where good ideas find you.</p>
+                <p>Medium is not just a platform for reading; it's a space where you can share your voice with the world. Whether you're interested in writing about the latest trends in technology, sharing your personal journey of self-improvement, or telling stories about human experiences, there's always an audience ready to engage with your ideas. Start writing today and make your voice heard!</p>
+                <button class="btn btn-dark" onclick="showpopup()" title="Start reading insightful articles and stories on Medium">Start Reading</button>
             </div>
         </section>
 
-        <!-- Trending Topics -->
-        <section class="trending">
-            <h2>Trending on Medium</h2>
-            <div class="topics-grid">
-                <div class="topic-card">
-                    <div class="topic-img" style="background-image:url('https://images.unsplash.com/photo-1676299355365-f6f6b2a7b37e?w=800')"></div>
-                    <div class="topic-content">
-                        <h3>Artificial Intelligence</h3>
-                        <p>Explore the future of AI, machine learning, ethics, and real-world applications.</p>
-                    </div>
-                </div>
-                <div class="topic-card">
-                    <div class="topic-img" style="background-image:url('https://images.unsplash.com/photo-1506784983877-45594f17d54a?w=800')"></div>
-                    <div class="topic-content">
-                        <h3>Self Improvement</h3>
-                        <p>Productivity hacks, mindset shifts, habits, and personal growth strategies.</p>
-                    </div>
-                </div>
-                <div class="topic-card">
-                    <div class="topic-img" style="background-image:url('https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=800')"></div>
-                    <div class="topic-content">
-                        <h3>Startups & Entrepreneurship</h3>
-                        <p>Founder stories, funding advice, growth strategies, and building in public.</p>
-                    </div>
-                </div>
-                <div class="topic-card">
-                    <div class="topic-img" style="background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab1b?w=800')"></div>
-                    <div class="topic-content">
-                        <h3>Programming & Technology</h3>
-                        <p>JavaScript, Python, React, cloud computing, and software engineering insights.</p>
-                    </div>
-                </div>
-            </div>
+        <!-- Additional Content Section -->
+        <section class="featured-topics">
+            <h2>Featured Topics on Medium</h2>
+            <p>Discover articles, blogs, and stories on various topics such as <strong>technology</strong>, <strong>personal growth</strong>, <strong>lifestyle</strong>, <strong>health and wellness</strong>, <strong>creative writing</strong>, and more. Whether you're looking for inspiration, knowledge, or entertainment, there's something for everyone on Medium.</p>
+            <p>From deep dives into artificial intelligence and coding tutorials to mindfulness practices and wellness routines, our community of writers shares a diverse range of perspectives. Explore the latest stories, keep up-to-date with industry news, and find ways to improve yourself every day.</p>
         </section>
 
-        <!-- Why Medium -->
+        <section class="about-medium">
+            <h2>About Medium</h2>
+            <p>Medium is an online publishing platform where writers share stories, ideas, and articles that cover a wide range of topics. Founded on the belief that good ideas can come from anywhere, Medium offers a space for both experienced writers and new voices to share their stories with a global audience.</p>
+            <p>With a mission to empower individuals to write freely, Medium provides all the tools you need to create beautiful, meaningful content. Whether you're a seasoned writer or someone just starting, Medium helps bring your voice to the world. Explore topics like personal development, technology, art, science, and more, and join a vibrant, creative community that thrives on sharing knowledge and stories.</p>
+            <p>Join today to start writing your own stories or explore articles written by passionate creators from around the world. Whether you're interested in technology, culture, or self-improvement, you'll find something to inspire you on Medium.</p>
+        </section>
+
         <section class="why-medium">
-            <div class="why-content">
-                <div class="feature">
-                    <h3>Read freely</h3>
-                    <p>Access thousands of stories from independent voices and publications — many completely free. Discover new perspectives every day.</p>
-                </div>
-                <div class="feature">
-                    <h3>Write without barriers</h3>
-                    <p>Anyone can write on Medium. Share your knowledge, experience, or opinion with millions of curious readers.</p>
-                </div>
-                <div class="feature">
-                    <h3>Get paid for your writing</h3>
-                    <p>Medium members help support writers directly. Earn money every time members read your stories.</p>
-                </div>
-            </div>
+            <h2>Why Medium?</h2>
+            <p>At Medium, we believe that ideas should be accessible to everyone. Our platform is designed to bring the best of human creativity, technology, and experiences to the world, making it easier for anyone to connect with content that sparks their curiosity and passion.</p>
+            <p>Here’s why you should choose Medium:</p>
+            <ul>
+                <li><strong>Accessible and Easy to Use</strong>: Whether you're using a mobile device or desktop, Medium is built to offer a smooth, enjoyable reading and writing experience.</li>
+                <li><strong>Supportive Community</strong>: Join a community of like-minded people who are passionate about sharing their stories, ideas, and experiences with the world.</li>
+                <li><strong>Expert Insights</strong>: Gain access to insights from experts, thought leaders, and influencers across various fields, helping you stay informed and inspired.</li>
+                <li><strong>Premium Content</strong>: Unlock premium stories and articles with a Medium membership, giving you access to exclusive content from top writers.</li>
+            </ul>
+        </section>
+
+        <section class="writing-opportunities">
+            <h2>Writing Opportunities on Medium</h2>
+            <p>Medium is a platform for both novice and experienced writers. Whether you want to write for fun, create professional blogs, or develop thought-provoking essays, Medium gives you the platform and tools to do so. The platform's rich ecosystem supports writers of all backgrounds and skill levels.</p>
+            <p>Writing for Medium provides opportunities to reach a global audience and gain followers who share your interests. With built-in tools for formatting, multimedia integration, and interaction, Medium makes the process of writing and publishing seamless.</p>
+            <p>Medium’s Partner Program allows writers to get paid for their stories based on engagement, giving you the ability to turn your passion for writing into a potential income source. Join today, start writing, and explore how Medium can help you grow as a writer.</p>
         </section>
     </main>
 
     <footer>
-        <div class="footer-grid">
-            <div class="footer-column">
-                <h4>Discover</h4>
-                <a href="/tag/technology">Technology</a>
-                <a href="/tag/self">Self</a>
-                <a href="/tag/programming">Programming</a>
-                <a href="/tag/startups">Startups</a>
-                <a href="/tag/design">Design</a>
+        <div class="footer1">
+            <div class="footer2">
+                <a href="#">Help</a>
+                <a href="#">Status</a>
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Blog</a>
+                <a href="#">Privacy</a>
+                <a href="#">Rules</a>
+                <a href="#">Terms</a>
+                <a href="#">Text to speech</a>
             </div>
-            <div class="footer-column">
-                <h4>Community</h4>
-                <a href="/membership">Membership</a>
-                <a href="/creators">Writers</a>
-                <a href="/publications">Publications</a>
-                <a href="/about">About</a>
-                <a href="/careers">Careers</a>
-            </div>
-            <div class="footer-column">
-                <h4>Help & Legal</h4>
-                <a href="/help">Help Center</a>
-                <a href="/privacy">Privacy</a>
-                <a href="/terms">Terms</a>
-                <a href="/rules">Content Rules</a>
-                <a href="/contact">Contact</a>
-            </div>
-        </div>
-        <div style="text-align:center;color:#999;font-size:14px;">
-            © 2025 Medium Clone • Made for learning and SEO practice
         </div>
     </footer>
 
-    <!-- Sign-in Popup -->
-    <div id="signInPopup" class="popup" role="dialog" aria-modal="true" aria-labelledby="popup-title">
+    <div id="signInpopup" class="popup">
         <div class="popup-content">
-            <span class="popup-close" onclick="closePopup()" aria-label="Close">×</span>
-            <h2 id="popup-title" class="popup-title">Welcome back.</h2>
-            <div style="display:flex;flex-direction:column;gap:16px;">
-                <button class="sign-in-btn"><i class="fa-brands fa-google"></i> Continue with Google</button>
-                <button class="sign-in-btn"><i class="fa-brands fa-apple"></i> Continue with Apple</button>
-                <button class="sign-in-btn"><i class="fa-solid fa-envelope"></i> Sign in with Email</button>
+            <span class="popup-close" onclick="closepopup()"></span>
+            <h2 class="popup-title">Welcome Back</h2>
+            <div class="sign-in-options">
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Sign in with Google</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-facebook"></i>
+                    <span>Sign in with Facebook</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Sign in with Apple</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-x"></i>
+                    <span>Sign in with X</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Sign in with Email</span>
+                </button>
             </div>
-            <p style="text-align:center;margin-top:32px;font-size:14px;color:#666;">
-                No account? <a href="#" style="color:#1a8917;font-weight:600;">Create one</a>
-            </p>
+            <div class="popup-footer">
+                No account? <a href="#">Create one</a>
+                <br><br>
+                Forgot your email or need help signing in? <a href="#">Get help</a>
+                <br><br>
+                By clicking "Sign in", you accept Medium's Terms of Service and Privacy Policy.
+            </div>
         </div>
     </div>
 
     <script>
-        function showPopup() {
-            document.getElementById('signInPopup').classList.add('active');
-            document.body.style.overflow = 'hidden';
+        function showpopup() {
+            document.getElementById('signInpopup').classList.add('active');
         }
-        function closePopup() {
-            document.getElementById('signInPopup').classList.remove('active');
-            document.body.style.overflow = 'auto';
+        function closepopup() {
+            document.getElementById('signInpopup').classList.remove('active');
         }
-        window.addEventListener('click', function(e) {
-            const popup = document.getElementById('signInPopup');
-            if (e.target === popup) closePopup();
-        });
+        window.onclick = function(event) {
+            const popup = document.getElementById('signInpopup');
+            if (event.target == popup) {
+                closepopup();
+            }
+        }
     </script>
 </body>
 </html>
