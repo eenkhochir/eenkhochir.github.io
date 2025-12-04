@@ -87,14 +87,13 @@
             border-radius: 99px;
             text-decoration: none;
             font-size: 14px;
-            cursor: pointer; /* Added for interactive elements */
+            cursor: pointer;
         }
         .btn-dark {
             background: #191919;
             color: #fff;
-            border: none; /* Changed <a> to <button> for better semantics, added border:none */
+            border: none;
         }
-        /* Hero Section (div1) Styles */
         .div1 {
             padding: 80px 0 120px;
             position: relative;
@@ -110,42 +109,55 @@
             font-weight: 400;
             line-height: 1.05;
             margin-bottom: 35px;
-            letter-spacing: -0.05em; /* Added for better typography */
+            letter-spacing: -0.05em;
         }
         .div1 p {
             font-size: 24px;
             margin-bottom: 50px;
             max-width: 550px;
         }
-        /* Footer Styles */
+        
         footer {
             background: #fff;
             border-top: 1px solid #F2F2F2;
             padding: 40px 24px;
         }
-        .footer1 { /* Note: This class is not used in your footer HTML but kept for reference */
+        .footer-container {
             max-width: 1192px;
             margin: 0 auto;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
+            gap: 30px;
         }
-        .footer2 {
+        .footer-column {
             display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 120px;
         }
-        .footer2 a {
+        .footer-column h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #191919;
+        }
+        .footer-link {
             text-decoration: none;
             color: #6B6B6B;
-            font-size: 13px;
-            margin-bottom: 8px;
+            font-size: 14px;
+            transition: color 0.2s;
         }
-        .footer2 a:hover {
+        .footer-link:hover {
             color: #000;
         }
-        /* Modal (popup) Styles */
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #191919;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
         .popup {
             display: none;
             position: fixed;
@@ -174,12 +186,12 @@
             top: 20px;
             right: 20px;
             font-size: 28px;
-            cursor: pointer; /* Added cursor pointer */
+            cursor: pointer;
             color: #6B6B6B;
         }
         .popup-title {
             font-size: 32px;
-            font-family: 'Charter', Georgia, serif; /* Added font for Medium-like look */
+            font-family: 'Charter', Georgia, serif;
             text-align: center;
             margin-bottom: 40px;
         }
@@ -199,7 +211,7 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            transition: all 0.2s; /* Added transition */
+            transition: all 0.2s;
         }
         .sign-in-btn:hover {
             background: #F9F9F9;
@@ -214,7 +226,6 @@
             color: #1A8917;
             text-decoration: none;
         }
-        /* Media Queries */
         @media (max-width: 768px) {
             .div1 h1 {
                 font-size: 56px;
@@ -233,14 +244,9 @@
             footer {
                 padding: 20px 24px;
             }
-            .footer2 {
+            .footer-container {
                 flex-direction: column;
-                align-items: flex-start;
-                width: 100%;
-            }
-            .footer2 a {
-                font-size: 12px;
-                margin-bottom: 10px;
+                gap: 20px;
             }
         }
     </style>
@@ -269,46 +275,77 @@
             </div>
         </section>
 
-        <section style="max-width:1192px;margin:0 auto;padding:24px;">
-            <h2>Popular Topics on Medium</h2>
-            <p>Explore thousands of stories in:</p>
-            <ul>
-                <li><a href="https://en.wikipedia.org/wiki/Artificial_intelligence">Technology</a> – AI, programming, startups</li>
-                <li><a href="https://www.healthline.com/health/mental-health">Personal Growth</a> – productivity, mindfulness, habits</li>
-                <li><a href="https://www.facebook.com/">Creativity</a> – writing tips, art, design</li>
-                <li><a href="https://www.google.com/">Health & Wellness</a> – fitness, mental health</li>
-                <li><a href="https://www.google.com/">Science</a> – research, psychology, environment</li>
-            </ul>
-        </section>
-
-        <section style="max-width:1192px;margin:0 auto;padding:24px;">
-            <h2>Why Writers Love Medium</h2>
-            <p>Every day, thousands of people <a href="https://www.google.com/">earn money writing on Medium</a> through the <a href="https://medium.com/creators">Partner Program</a>. Join top publications like <a href="https://onezero.medium.com/">OneZero</a>, <a href="https://marker.medium.com/">Marker</a>, and <a href="https://gen.medium.com/">GEN</a>.</p>
-            <p>Recommended reading:</p>
-            <ul>
-                <li><a href="https://www.google.com/" class="external-link" target="_blank" rel="noopener">How the Medium Partner Program Works</a></li>
-                <li><a href="https://help.medium.com" class="external-link" target="_blank" rel="noopener">Medium Help Center</a></li>
-                <li><a href="https://medium.com/about" class="external-link" target="_blank" rel="noopener">About Medium</a></li>
-            </ul>
-        </section>
-
-        <section style="max-width:1192px;margin:0 auto;padding:24px;">
-            <h2>Join the World’s Best Reading & Writing Platform</h2>
-            <p>Over 100 million readers come to Medium every month. Start writing today and reach an audience that cares.</p>
-            <p><button type="button" class="btn btn-dark" onclick="showpopup()">Get unlimited access – $5/month</button></p>
-        </section>
-    </main>
+        <div class="seo-text-block" style="display: none; max-width:1192px; margin:0 auto; padding:24px;">
+            <section>
+                <h2>Popular Topics on Medium</h2>
+                <p>Explore thousands of stories in:</p>
+                <ul>
+                    <li><a href="https://en.wikipedia.org/wiki/Artificial_intelligence">Technology</a> – AI, programming, startups</li>
+                    <li><a href="https://www.healthline.com/health/mental-health">Personal Growth</a> – productivity, mindfulness, habits</li>
+                    <li><a href="https://www.facebook.com/">Creativity</a> – writing tips, art, design</li>
+                    <li><a href="https://www.google.com/">Health & Wellness">Health & Wellness</a> – fitness, mental health</li>
+                    <li><a href="https://www.google.com/">Science</a> – research, psychology, environment</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Why Writers Love Medium</h2>
+                <p>Every day, thousands of people <a href="https://www.google.com/">earn money writing on Medium</a> through the <a href="https://medium.com/creators">Partner Program</a>. Join top publications like <a href="https://onezero.medium.com/">OneZero</a>, <a href="https://marker.medium.com/">Marker</a>, and <a href="https://gen.medium.com/">GEN</a>.</p>
+                <p>Recommended reading:</p>
+                <ul>
+                    <li><a href="https://www.google.com/" class="external-link" target="_blank" rel="noopener">How the Medium Partner Program Works</a></li>
+                    <li><a href="https://help.medium.com" class="external-link" target="_blank" rel="noopener">Medium Help Center</a></li>
+                    <li><a href="https://medium.com/about" class="external-link" target="_blank" rel="noopener">About Medium</a></li>
+                </ul>
+            </section>
+            <section>
+                <h2>Join the World’s Best Reading & Writing Platform</h2>
+                <p>Over 100 million readers come to Medium every month. Start writing today and reach an audience that cares.</p>
+                <p><button type="button" class="btn btn-dark" onclick="showpopup()">Get unlimited access – $5/month</button></p>
+            </section>
+        </div>
+        </main>
 
     <footer>
-        <div style="max-width:1192px;margin:0 auto;padding:40px 24px;display:flex;flex-wrap:wrap;gap:32px;font-size:13px;color:#6b6b6b">
-            <div>
-                <a href="https://www.google.com/">About</a> • 
-                <a href="https://www.google.com/">Terms</a> • 
-                <a href="https://www.google.com/">Privacy</a> • 
-                <a href="https://help.medium.com" target="_blank" rel="noopener">Help</a> • 
-                <a href="https://www.google.com/">Write</a> • 
-                <a href="/lab6/membership.html">Membership</a>
+        <div class="footer-container">
+            
+            <div class="footer-column" style="min-width: 150px;">
+                <a href="/" class="footer-logo">Medium</a>
+                <p style="font-size: 14px; color: #6B6B6B;">Discover the power of great ideas.</p>
+                <p style="font-size: 12px; color: #A8A8A8; margin-top: 15px;">© 2025 Medium</p>
             </div>
+            
+            <div class="footer-column">
+                <h3>Company</h3>
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Careers</a>
+                <a href="#" class="footer-link">Press</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Product</h3>
+                <a href="#" class="footer-link">Membership</a>
+                <a href="#" class="footer-link">Write</a>
+                <a href="#" class="footer-link">Blog</a>
+                <a href="#" class="footer-link">Status</a>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Legal</h3>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Rules</a>
+                <a href="#" class="footer-link">Help</a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Social</h3>
+                <a href="#" class="footer-link">Twitter</a>
+                <a href="#" class="footer-link">Facebook</a>
+                <a href="#" class="footer-link">LinkedIn</a>
+                <a href="#" class="footer-link">Instagram</a>
+            </div>
+
         </div>
     </footer>
 
@@ -349,7 +386,6 @@
     </div>
 
     <script>
-        // Use consistent function names from your code block: showpopup and closepopup
         function showpopup(){document.getElementById('signInpopup').classList.add('active')}
         function closepopup(){document.getElementById('signInpopup').classList.remove('active')}
         window.onclick=e=>{if(e.target===document.getElementById('signInpopup'))closepopup()}
