@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Medium - A platform where good ideas and human stories find you. Read, write, and deepen your understanding.">
+    <meta name="keywords" content="Medium, blog, writing, human stories, ideas, articles, membership, sign in, create account">
+    <meta name="author" content="Medium Team">
+    <title>Medium - Where Good Ideas Find You</title>
+    
+    <!-- Open Graph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="Medium - Where Good Ideas Find You">
+    <meta property="og:description" content="A place to read, write, and deepen your understanding with human stories and ideas.">
+    <meta property="og:image" content="path_to_image.jpg">
+    <meta property="og:url" content="https://www.medium.com">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        header {
+            border-bottom: 1px solid #000;
+            padding: 25px 0;
+        }
+        nav {
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 400;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav2 {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .nav2 a {
+            text-decoration: none;
+            color: #000;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 99px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-dark {
+            background: #191919;
+            color: #fff;
+        }
+        .div1 {
+            padding: 80px 0 120px;
+            position: relative;
+            border-bottom: 1px solid #000;
+        }
+        .div1-content {
+            max-width: 1192px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .div1 h1 {
+            font-size: 106px;
+            font-weight: 400;
+            line-height: 1.05;
+            margin-bottom: 35px;
+        }
+        .div1 p {
+            font-size: 24px;
+            margin-bottom: 50px;
+            max-width: 550px;
+        }
+        footer {
+            background: #fff;
+            border-top: 1px solid #F2F2F2;
+            padding: 40px 24px;
+        }
+        .footer1 {
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .footer2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .footer2 a {
+            text-decoration: none;
+            color: #6B6B6B;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .footer2 a:hover {
+            color: #000;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup.active {
+            display: flex;
+        }
+        .popup-content {
+            background: #fff;
+            padding: 60px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        .popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            color: #6B6B6B;
+        }
+        .popup-title {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .sign-in-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sign-in-btn {
+            padding: 12px 24px;
+            border: 1px solid #E6E6E6;
+            border-radius: 99px;
+            background: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .sign-in-btn:hover {
+            background: #F9F9F9;
+        }
+        .popup-footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+        .popup-footer a {
+            color: #1A8917;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .div1 h1 {
+                font-size: 56px;
+            }
+            .nav2 {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+            footer {
+                padding: 20px 24px;
+            }
+            .footer2 {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+            .footer2 a {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo" aria-label="Home">Medium</a>
+            <div class="nav2">
+                <a href="our-story.html" title="Learn about our story">Our story</a>
+                <a href="membership.html" title="Join our membership">Membership</a>
+                <a href="#" onclick="showpopup()" title="Write for us">Write</a>
+                <a href="#" onclick="showpopup()" title="Sign in to your account">Sign in</a>
+                <button class="btn btn-dark" onclick="showpopup()" title="Get started with Medium">Get started</button>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section class="div1">
+            <div class="div1-content">
+                <h1>Human<br>stories & ideas</h1>
+                <p>A place to read, write, and deepen your understanding</p>
+                <button class="btn btn-dark" onclick="showpopup()">Start reading</button>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="footer1">
+            <div class="footer2">
+                <a href="#">Help</a>
+                <a href="#">Status</a>
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Blog</a>
+                <a href="#">Privacy</a>
+                <a href="#">Rules</a>
+                <a href="#">Terms</a>
+                <a href="#">Text to speech</a>
+            </div>
+        </div>
+    </footer>
+    <div id="signInpopup" class="popup">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closepopup()"></span>
+            <h2 class="popup-title">Welcome back.</h2>
+            <div class="sign-in-options">
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Sign in with Google</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-facebook"></i>
+                    <span>Sign in with Facebook</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Sign in with Apple</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-x"></i>
+                    <span>Sign in with X</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Sign in with email</span>
+                </button>
+            </div>
+            <div class="popup-footer">
+                No account? <a href="#">Create one</a>
+                <br><br>
+                Forgot email or trouble signing in? <a href="#">Get help</a>
+                <br><br>
+                By clicking "Sign in", you accept Medium's Terms of Service and Privacy Policy.
+            </div>
+        </div>
+    </div>
+    <script>
+        function showpopup() {
+            document.getElementById('signInpopup').classList.add('active');
+        }
+        function closepopup() {
+            document.getElementById('signInpopup').classList.remove('active');
+        }
+        window.onclick = function(event) {
+            const popup = document.getElementById('signInpopup');
+            if (event.target == popup) {
+                closepopup();
+            }
+        }
+    </script>
+</body>
+</html>

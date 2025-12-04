@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership - Medium</title>
+    <style>
+        header {
+            background: #fff;
+            border-bottom: 1px solid gray;
+            padding: 25px 0;
+        }
+        nav {
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 400;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav1 {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .nav1 a {
+            text-decoration: none;
+            color: #000;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 99px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-outline {
+            color: #000;
+            border: 1px solid #000;
+        }
+        .btn-dark {
+            background: #000;
+            color: #fff;
+        }
+        .div1 {
+            background: #fff;
+            padding: 100px 24px;
+            text-align: left;
+            max-width: 1192px;
+            margin: 0 auto;
+        }
+        .div1-content {
+            max-width: 680px;
+        }
+        .div1 h1 {
+            font-size: 72px;
+            margin-bottom: 30px;
+        }
+        .div1 p {
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 16px;
+        }
+        .btn-white {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+        .div2 {
+            background: #F7F4ED;
+            padding: 80px 24px;
+            display: flex;
+            gap: 60px;
+            align-items: flex-start;
+            max-width: 1192px;
+            margin: 0 auto;
+        }
+
+        .div3{
+            background: #FFC017;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .div2 h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .div4 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .div4-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #ccc;
+            background-image: url(images/Quintessa-Williams.webp);
+        }
+        .div4-info {
+            font-size: 14px;
+        }
+        .div4-name {
+            font-weight: 500;
+        }
+        .div5 {
+            max-width: 1192px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+        .div5 h2 {
+            font-size: 42px;
+            margin-bottom: 60px;
+        }
+        .div6 {
+            margin-bottom: 60px;
+        }
+        .div6 h3 {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        .div6 p {
+            font-size: 18px;
+            color: #6B6B6B;
+            line-height: 1.6;
+        }
+        .div7 {
+            background: #F7F4ED;
+            padding: 80px 24px;
+        }
+        .div7-content {
+            max-width: 1192px;
+            margin: 0 auto;
+        }
+        .div7 h2 {
+            font-size: 42px;
+            margin-bottom: 60px;
+        }
+        .div8 {
+            margin-bottom: 60px;
+            display: flex;
+            gap: 24px;
+        }
+        .div8-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 5%;
+            /* background: #ccc; */
+            /* border: 5px solid black; */
+            background-image: url(images/imag2es.webp);
+            background-color: pink;
+        }
+        .div8-text {
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .div8-div4 {
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+        .div9 {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+        .div9 h2 {
+            font-size: 42px;
+            margin-bottom: 60px;
+        }
+
+        .pricing{
+            display: grid;
+            gap: 24px;
+        }
+
+        .pricing-card {
+            border: 1px solid #E6E6E6;
+            border-radius: 8px;
+            padding: 40px;
+        }
+
+        .pland {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 14px;
+            color: #6B6B6B;
+            margin-bottom: 24px;
+        }
+
+        .planc {
+            width: 100%;
+            padding: 12px;
+            background: #1A8917;
+            color: #fff;
+            border: none;
+            border-radius: 99px;
+            font-size: 16px;
+        }
+        .plan-features {
+            list-style: none;
+            font-size: 14px;
+            line-height: 2;
+        }
+        .plan-plus {
+            font-weight: 500;
+            margin: 16px 0 8px;
+        }
+        .final {
+            background: #FFFAE5;
+            padding: 80px 24px;
+            text-align: center;
+        }
+        .final h2 {
+            font-size: 48px;
+            margin-bottom: 40px;
+        }
+        footer {
+            background: #fff;
+            border-top: 1px solid #F2F2F2;
+            padding: 40px 24px;
+        }
+        .footer-content {
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-logo {
+            font-size: 32px;
+            font-weight: 400;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #6B6B6B;
+            font-size: 13px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup.active {
+            display: flex;
+            /* opacity: 0.5; */
+            background-color:gray;
+        }
+        .popup-content {
+            background: #fff;
+            padding: 60px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        .popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            color: #6B6B6B;
+        }
+        .popup-title {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .sign-in-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sign-in-btn {
+            padding: 12px 24px;
+            border: 1px solid #E6E6E6;
+            border-radius: 99px;
+            background: #fff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .popup-footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+
+        .popup-footer a {
+            color: #1A8917;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .div1 h1 {
+                font-size: 48px;
+            }
+            .div2 {
+                flex-direction: column;
+            }
+            .nav1 {
+                gap: 16px;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">Medium</a>
+            <div class="nav1">
+                <a href="our-story.html">Our story</a>
+                <a href="membership.html">Membership</a>
+                <a href="#" onclick="showpopup()">Write</a>
+                <button class="btn btn-outline" onclick="showpopup()">Sign in</button>
+                <button class="btn btn-dark" onclick="showpopup()">Sign up</button>
+            </div>
+        </nav>
+    </header>
+
+    <section class="div1">
+        <div class="div1-content">
+            <h1>Support human stories</h1>
+            <p>Become a member to read without limits or ads, fund great writers, and join a global community of people who care about high-quality storytelling.</p>
+            <div class="btn-group">
+                <button class="btn btn-dark" onclick="showpopup()">Get started</button>
+                <button class="btn btn-white" onclick="showpopup()">View plans</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="div2">
+        <div class="div2-img">
+            <img src="images/images.jfif" alt="">
+        </div>
+        <div class="div2-content">
+            <span class="member-badge">Member-only story</span>
+            <h2>Henrietta Lacks, Subjectivity, & The Medical Exploitation of Women</h2>
+            <div class="div4">
+                <div class="div4-avatar"></div>
+                <div class="div4-info">
+                    <div class="div4-name">Quintessa Williams</div>
+                    <div>Writer for Cultured</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="div5">
+        <h2>Why membership?</h2>
+        
+        <div class="div6">
+            <h3>Reward writers</h3>
+            <p>Your membership directly supports the writers, editors, curators, and teams who make Medium a vibrant, inclusive home for human stories. A portion of your membership is allocated to the writers of the stories you read and interact with.</p>
+        </div>
+
+        <div class="div6">
+            <h3>Unlock every story</h3>
+            <p>Get access to millions of original stories that spark bright ideas, answer big questions, and fuel bold ambitions.</p>
+        </div>
+
+        <div class="div6">
+            <h3>Enhance your reading experience</h3>
+            <p>Immerse yourself in audio stories, read offline wherever you go, and connect with the Medium community on Mastodon.</p>
+        </div>
+
+        <div class="div6">
+            <h3>Elevate your writing</h3>
+            <p>Create and contribute to publications to collaborate with other writers, create a custom domain for your profile, and level up your writing with our simple but powerful publishing tools.</p>
+        </div>
+
+        <div class="div6">
+            <h3>Support a mission that matters</h3>
+            <p>Members are creating a world where original, human-crafted stories thrive. As a member-supported platform, quality comes first, not ads or clickbait.</p>
+        </div>
+    </section>
+
+    <section class="div7">
+        <div class="div7-content">
+            <h2>What members are saying</h2>
+            <div class="div8">
+                <!-- <div class="div8-avatar"></div> -->
+                <div class="div8-content">
+                    <p class="div8-text">The easy path in social media is promoting the worst content, the cheapest, tackiest, lowest-effort stuff. That's not what you get on Medium. You can actually find content you can build your brain with. I appreciate that, both as a reader and a writer.</p>
+                    <p class="div8-div4">Cassie Kozyrkov, Chief Decision Scientist at Google and Medium member</p>
+                </div>
+            </div>
+            <div class="div8">
+                <!-- <div class="div8-avatar"></div> -->
+                <div class="div8-content">
+                    <p class="div8-text">Medium has proved a game-changer for me, and quickly became the subscription I value the most, and I have quite a few. The cost is nothing compared to the value Medium generates for me month after month.</p>
+                    <p class="div8-div4">Enrique Dans, Professor of Innovation at IE Business School and Medium member</p>
+                </div>
+            </div>
+            <div class="div8">
+                <!-- <div class="div8-avatar"></div> -->
+                <div class="div8-content">
+                    <p class="div8-text">For us tech folks, Medium membership unlocks a whole treasure trove of high-quality articles. One good technology book could sell for over the Medium membership fee amount. It's your choice whether to buy one book, or buy hundreds and thousands of books by unlocking member-only reading on Medium. Investing in a Medium membership is one of the best investments I have ever made for my career.</p>
+                    <p class="div8-div4">Wenqi Glantz, Software Architect at ArisGlobal and Medium member</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="div9">
+        <h2>Membership plans</h2>
+        <div class="pricing-cards">
+            <div class="pricing-card">
+                <div class="plan-name">Medium Member</div>
+                <div class="plan-price">$5/month or $50/year</div>
+                <button class="planc" onclick="showpopup()">Get started</button>
+                <ul class="plan-features">
+                    <li>Read member-only stories</li>
+                    <li>Support writers you read most</li>
+                    <li>Access the Partner Program</li>
+                    <li>Listen to audio narrations</li>
+                    <li>Read offline with the Medium app</li>
+                    <li>Access our Mastodon community</li>
+                    <li>Connect your custom domain</li>
+                    <li>Create your own publications</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <div class="plan-name">Friend of Medium</div>
+                <div class="plan-price">$15/month or $150/year</div>
+                <button class="planc" onclick="showpopup()">Get started</button>
+                <ul class="plan-features">
+                    <li>All Medium member benefits</li>
+                </ul>
+                <div class="plan-plus">PLUS</div>
+                <ul class="plan-features">
+                    <li>Give 4x more to the writers you read</li>
+                    <li>Share member-only stories with anyone and drive more earnings for writers</li>
+                    <li>Customize app icon</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <section class="final">
+        <h2>Unlock a world of wisdom</h2>
+        <button class="btn btn-dark" onclick="showpopup()">Get started</button>
+    </section>
+    <footer>
+        <div class="footer-content">
+            <a href="index.html" class="footer-logo">Medium</a>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Terms</a>
+                <a href="#">Privacy</a>
+                <a href="#">Help</a>
+                <a href="#">Teams</a>
+                <a href="#">Press</a>
+            </div>
+        </div>
+    </footer>
+    <div id="signInpopup" class="popup">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closepopup()">&times;</span>
+            <h2 class="popup-title">Welcome back.</h2>
+            <div class="sign-in-options">
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Sign in with Google</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-facebook"></i>
+                    <span>Sign in with Facebook</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Sign in with Apple</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-x"></i>
+                    <span>Sign in with X</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Sign in with email</span>
+                </button>
+            </div>
+            <div class="popup-footer">
+                No account? <a href="#">Create one</a>
+                <br><br>
+                Forgot email or trouble signing in? <a href="#">Get help</a>
+                <br><br>
+                By clicking "Sign in", you accept Medium's Terms of Service and Privacy Policy.
+            </div>
+        </div>
+    </div>
+    <script>
+        function showpopup() {
+            document.getElementById('signInpopup').classList.add('active');
+        }
+
+        function closepopup() {
+            document.getElementById('signInpopup').classList.remove('active');
+        }
+        window.onclick = function(event) {
+            const popup = document.getElementById('signInpopup');
+            if (event.target == popup) {
+                closepopup();
+            }
+        }
+    </script>
+</body>
+</html>

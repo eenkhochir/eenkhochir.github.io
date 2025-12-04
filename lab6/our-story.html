@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Story - Medium</title>
+    <style>
+        body {
+            background: #000000;
+            color: #fff;
+        }
+        header {
+            background: #000000;
+            padding: 25px 0;
+            position: relative;
+        }
+        nav {
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 400;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav1 {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .nav1 a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 99px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btnn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #fff;
+        }
+        .btn-white {
+            background: #fff;
+            color: #000;
+            border: 1px solid #fff;
+        }
+        .div2 {
+            background: #191919;
+            padding: 100px 0 80px;
+        }
+        .div3 {
+            max-width: 1192px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .div2 h1 {
+            color: #fff;
+            font-size: 80px;
+            margin-bottom: 50px;
+            font-weight: 400;
+        }
+        .div2 p {
+            color: #fff;
+            font-size: 20px;
+            max-width: 600px;
+            line-height: 1.8;
+        }
+        .div4 {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+        .div4 h2 {
+            font-size: 38px;
+            margin-bottom: 24px;
+            line-height: 1.2;
+            color: #fff;
+        }
+        .div4 p {
+            font-size: 20px;
+            line-height: 1.8;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+        .div4 a {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .div5 {
+            text-align: center;
+            padding: 80px 24px;
+            background: #191919;
+        }
+        .div6 {
+            display: flex;
+            flex-direction: column;
+            max-width: 1192px;
+            margin: 0 auto;
+        }
+        .div7 {
+            background: #000;
+            color: #fff;
+            padding: 40px;
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 32px;
+            border: 1px solid #2d2d2d;
+        }
+        .arrow {
+            font-size: 48px;
+        }
+        footer {
+            background: #fff;
+            padding: 40px 24px;
+        }
+        .footer1 {
+            max-width: 1192px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer2 {
+            font-size: 32px;
+            font-weight: 400;
+            color: #000;
+            text-decoration: none;
+        }
+        .footer3 {
+            display: flex;
+            gap: 24px;
+        }
+        .footer3 a {
+            text-decoration: none;
+            color: #6B6B6B;
+            font-size: 13px;
+        }
+        .footer3 a:hover {
+            color: #000;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup.active {
+            display: flex;
+        }
+        .popup-content {
+            background: #fff;
+            padding: 60px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        .popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6B6B6B;
+            background: none;
+            border: none;
+        }
+        .popup-title {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #000;
+        }
+        .sign-in-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sign-in-btn {
+            padding: 12px 24px;
+            border: 1px solid #E6E6E6;
+            border-radius: 99px;
+            background: #fff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #000;
+        }
+        .popup-footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+        .popup-footer a {
+            color: #1A8917;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .div2 h1 {
+                font-size: 48px;
+            }
+            .div7 {
+                font-size: 24px;
+                padding: 24px;
+            }
+            .nav1 {
+                gap: 16px;
+            }
+            .nav1 a {
+                font-size: 13px;
+            }
+            .btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            .div4 {
+                padding: 60px 24px;
+            }
+            .div4 h2 {
+                font-size: 28px;
+            }
+            .div4 p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">Medium</a>
+            <div class="nav1">
+                <a href="our-story.html">Our story</a>
+                <a href="membership.html">Membership</a>
+                <a href="#" onclick="showpopup();">Write</a>
+                <button class="btn btnn" onclick="showpopup()">Sign in</button>
+                <button class="btn btn-white" onclick="showpopup()">Sign up</button>
+            </div>
+        </nav>
+    </header>
+    <section class="div2">
+        <div class="div3">
+            <h1>Everyone has a<br>story to tell</h1>
+            <p>Medium is a home for human stories and ideas. Here, anyone can share knowledge and wisdom with the world—without having to build a mailing list or a following first. The internet is noisy and chaotic; Medium is quiet yet full of insight. It's simple, beautiful, collaborative, and helps you find the right readers for whatever you have to say.</p>
+        </div>
+    </section>
+    <section class="div4">
+        <h2>Ultimately, our goal is to deepen our collective understanding of the world through the power of writing.</h2>
+        <p>We believe that what you read and write matters. Words can divide or empower us, inspire or discourage us. In a world where the most sensational and surface-level stories often win, we're building a system that rewards depth, nuance, and time well spent. A space for thoughtful conversation more than drive-by takes, and substance over packaging.</p>
+    </section>
+    <section class="div4">
+        <p>Over 100 million people connect and share their wisdom on Medium every month. They're software developers, amateur novelists, product designers, CEOs, and anyone burning with a story they need to get out into the world. They write about what they're working on, what's keeping them up at night, and what they've lived through, and what they've learned that the rest of us might want to know too.</p>
+        <p>Instead of selling ads or selling your data, we're supported by a growing community of over a million <a href="membership.html">Medium members</a> who believe in our mission. If you're new here, <a href="#" onclick="showpopup();">start reading</a>. Dive deeper into whatever matters to you. Find a post that helps you learn something new, or reconsider something familiar—and then <a href="#" onclick="showpopup();">write your story</a>.</p>
+    </section>
+    <section class="div5">
+        <div class="div6">
+            <a href="#" class="div7" onclick="showpopup();">
+                <span>Start reading</span>
+                <span class="arrow">→</span>
+            </a>
+            <a href="#" class="div7" onclick="showpopup();">
+                <span>Start writing</span>
+                <span class="arrow">→</span>
+            </a>
+            <a href="membership.html" class="div7">
+                <span>Become a member</span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </section>
+    <footer>
+        <div class="footer1">
+            <a href="index.html" class="footer2">Medium</a>
+            <div class="footer3">
+                <a href="#">About</a>
+                <a href="#">Terms</a>
+                <a href="#">Privacy</a>
+                <a href="#">Help</a>
+                <a href="#">Teams</a>
+                <a href="#">Press</a>
+            </div>
+        </div>
+    </footer>
+    <div id="signInpopup" class="popup" onclick="closepopupOnOutsideClick(event)">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closepopup()"></button>
+            <h2 class="popup-title">Welcome back.</h2>
+            <div class="sign-in-options">
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Sign in with Google</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-facebook"></i>
+                    <span>Sign in with Facebook</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-brands fa-apple"></i>
+                    <span>Sign in with Apple</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-x"></i>
+                    <span>Sign in with X</span>
+                </button>
+                <button class="sign-in-btn">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Sign in with email</span>
+                </button>
+            </div>
+            <div class="popup-footer">
+                No account? <a href="#">Create one</a>
+                <br><br>
+                Forgot email or trouble signing in? <a href="#">Get help</a>
+                <br><br>
+                By clicking "Sign in", you accept Medium's Terms of Service and Privacy Policy.
+            </div>
+        </div>
+    </div>
+    <script>
+        function showpopup() {
+            document.getElementById('signInpopup').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closepopup() {
+            document.getElementById('signInpopup').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function closepopupOnOutsideClick(event) {
+            if (event.target === document.getElementById('signInpopup')) {
+                closepopup();
+            }
+        }
+    </script>
+</body>
+</html>
