@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ICPC Math Contest</title>
+  <title>Math checker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; color: #f1f5f9; min-height: 100vh; }
@@ -14,7 +15,7 @@
     .card { background: #12121a; border: 1px solid rgba(59,130,246,0.2); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
     .input { background: #1a1a25; border: 1px solid rgba(59,130,246,0.3); color: #f1f5f9; padding: 0.75rem 1rem; border-radius: 0.5rem; width: 100%; }
     .input:focus { outline: none; border-color: #06b6d4; }
-    .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block; text-align: center; text-decoration: none; }
+    .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-primary { background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(59,130,246,0.3); }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -26,7 +27,6 @@
     .btn-success:hover { background: #15803d; }
     .btn-warning { background: #ca8a04; color: white; }
     .btn-warning:hover { background: #a16207; }
-    .btn-large { padding: 1.25rem 2.5rem; font-size: 1.25rem; }
     .problem-cell { min-width: 60px; min-height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0.5rem; }
     .cell-none { background: rgba(55,65,81,0.3); }
     .cell-pending { background: linear-gradient(135deg, #1e3a5f, #1e40af); animation: pulse 2s infinite; }
@@ -40,24 +40,30 @@
     .rank-1 { color: #ffd700; }
     .rank-2 { color: #c0c0c0; }
     .rank-3 { color: #cd7f32; }
+    .frozen-item { transition: all 0.3s; }
+    .frozen-item:hover { background: rgba(59,130,246,0.1); }
   </style>
 </head>
 <body class="bg-grid">
   <div id="app"></div>
   
   <script>
-    // ========== CHANGE THESE SECRETS ==========
-    const ADMIN_SECRET = 'admin2025';
-    const JUDGE_SECRET = 'judge2025';
-    // ==========================================
-    
-    const KEY = 'mathcontest_v13';
-    const CONFIG_KEY = 'mathcontest_config';
-    
-    function getConfig() {
-      try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; } catch(e) { return {}; }
+    if (typeof CONFIG === 'undefined') {
+      document.getElementById('app').innerHTML = `
+        <div class="min-h-screen flex items-center justify-center p-6">
+          <div class="card max-w-md text-center">
+            <h1 class="text-2xl font-bold text-red-400 mb-4">⚠️ Config Missing</h1>
+            <p class="text-gray-400 mb-4">Please create a <code class="bg-gray-800 px-2 py-1 rounded">config.js</code> file in the same folder with:</p>
+            <pre class="bg-gray-900 p-4 rounded text-left text-sm text-green-400 overflow-x-auto">const CONFIG = {
+  GEMINI_API_KEY: 'your-api-key-here',
+  JUDGE_SECRET: 'your-secret-here'
+};</pre>
+          </div>
+        </div>`;
+      throw new Error('CONFIG not defined');
     }
-    function saveConfig(cfg) { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
+
+    const KEY = 'mathcontest_v10';
     
     function saveData(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
     function loadData() {
@@ -76,10 +82,10 @@
 
     function getMode() {
       const p = new URLSearchParams(location.search);
-      if (p.get('admin') === ADMIN_SECRET) return 'admin';
-      if (p.get('judge') === JUDGE_SECRET) return 'judge';
+      if (p.has('admin')) return 'admin';
       if (p.has('submit')) return 'submit';
       if (p.has('board')) return 'board';
+      if (p.get('judge') === CONFIG.JUDGE_SECRET) return 'judge';
       return 'home';
     }
     
@@ -152,12 +158,7 @@
     }
 
     async function gradeWithAI(sub, prob) {
-      const cfg = getConfig();
-      if (!cfg.apiKey) {
-        return { team: null, detected: 'No API key', score: 0, feedback: 'Admin needs to set API key' };
-      }
-      
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
       
       const prompt = `You are a LENIENT math grader. Be encouraging!
 
@@ -235,7 +236,7 @@ Reply with ONLY this JSON:
     function renderHome() {
       let html = `<div class="min-h-screen flex items-center justify-center p-6">
         <div class="max-w-md w-full text-center">
-          <h1 class="font-display text-4xl text-cyan-400 mb-2">ICPC Math</h1>
+          <h1 class="font-display text-4xl text-cyan-400 mb-2">Math checker</h1>
           <p class="text-gray-400 mb-8">AI-Powered Competition</p>`;
       
       if (hasContest()) {
@@ -243,55 +244,28 @@ Reply with ONLY this JSON:
           <h2 class="text-xl font-bold text-white mb-2">${esc(DATA.name)}</h2>
           <p class="text-gray-400 text-sm mb-3">${DATA.problems.length} problems • ${DATA.duration} min</p>`;
         
-        if (contestEnded()) {
-          html += `<div class="p-3 rounded-lg bg-red-900/30 text-red-400 text-center font-bold">🏁 Contest Ended</div>`;
-        } else if (contestStarted()) {
-          html += `<div class="p-3 rounded-lg bg-green-900/30 text-green-400 text-center">
-            <span class="font-bold">🟢 Running</span><br>
-            <span class="font-mono text-xl" id="timer">${fmtTime(getRemaining())}</span>
-          </div>`;
-        } else if (DATA.startTime) {
-          html += `<div class="p-3 rounded-lg bg-yellow-900/30 text-yellow-400 text-center">
-            <span class="font-bold">⏳ Starts</span><br>
-            <span class="text-white">${new Date(DATA.startTime).toLocaleString()}</span>
-          </div>`;
-        }
-        html += `</div>`;
+        if (contestEnded()) html += `<div class="p-3 rounded-lg bg-red-900/30 text-red-400 text-center font-bold">🏁 Contest Ended</div>`;
+        else if (contestStarted()) html += `<div class="p-3 rounded-lg bg-green-900/30 text-green-400 text-center"><span class="font-bold">🟢 Running</span><br><span class="font-mono text-xl" id="timer">${fmtTime(getRemaining())}</span></div>`;
+        else if (DATA.startTime) html += `<div class="p-3 rounded-lg bg-yellow-900/30 text-yellow-400 text-center"><span class="font-bold">⏳ Starts</span><br><span class="text-white">${new Date(DATA.startTime).toLocaleString()}</span></div>`;
         
-        html += `<div class="space-y-3">`;
-        if (!contestEnded()) {
-          html += `<a href="?submit" class="btn btn-primary btn-large block w-full">🚀 Enter Contest</a>`;
-        }
-        html += `<a href="?board" class="btn btn-secondary block w-full">📊 Scoreboard</a>`;
-        html += `</div>`;
+        html += `</div><div class="space-y-3">`;
+        if (contestStarted() && !contestEnded()) html += `<a href="?submit" class="btn btn-primary block w-full text-center">📤 Submit Solution</a>`;
+        html += `<a href="?board" class="btn btn-secondary block w-full text-center">📊 Scoreboard</a>
+          <a href="?admin" class="btn btn-secondary block w-full text-center">⚙️ Admin</a></div>`;
       } else {
-        html += `<p class="text-gray-500 mb-4">No contest scheduled</p>
-          <p class="text-gray-600 text-sm">Check back later!</p>`;
+        html += `<p class="text-gray-500 mb-6">No contest yet</p><a href="?admin" class="btn btn-primary">Create Contest</a>`;
       }
-      
       html += `</div></div>`;
       return html;
     }
 
     function renderAdmin() {
       const base = location.origin + location.pathname;
-      const cfg = getConfig();
-      
       let html = `<div class="min-h-screen p-4 sm:p-6"><div class="max-w-2xl mx-auto">
         <div class="flex justify-between items-center mb-6">
-          <h1 class="font-display text-2xl text-cyan-400">⚙️ Admin</h1>
-          <a href="?" class="text-gray-400 hover:text-white">← Home</a>
+          <h1 class="font-display text-2xl text-cyan-400">Admin</h1>
+          <a href="?" class="text-gray-400 hover:text-white">← Back</a>
         </div>`;
-      
-      // API Key settings
-      html += `<div class="card bg-purple-900/20 border-purple-700/50 mb-6">
-        <h2 class="text-lg font-bold text-purple-400 mb-4">🔑 API Key</h2>
-        <div>
-          <input type="password" id="cfg-apikey" class="input" value="${esc(cfg.apiKey || '')}" placeholder="Enter Gemini API Key">
-          <p class="text-xs text-gray-500 mt-1">Get free at <a href="https://aistudio.google.com/apikey" target="_blank" class="text-cyan-400 hover:underline">aistudio.google.com</a></p>
-        </div>
-        <button id="save-config" class="btn btn-secondary w-full mt-3">💾 Save API Key</button>
-      </div>`;
       
       if (hasContest()) {
         html += `<div class="card bg-red-900/20 border-red-700/50 mb-6">
@@ -355,22 +329,22 @@ Reply with ONLY this JSON:
       
       if (hasContest()) {
         html += `<div class="card mt-6">
-          <h2 class="text-lg font-bold text-white mb-4">📋 Links</h2>
+          <h2 class="text-lg font-bold text-white mb-4">Share Links</h2>
           <div class="space-y-3">
-            <div><label class="block text-sm text-gray-400 mb-1">🏠 Home</label>
-              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm" value="${base}">
-                <button class="btn btn-secondary copy-btn" data-url="${base}">📋</button></div></div>
-            <div><label class="block text-sm text-gray-400 mb-1">📊 Scoreboard</label>
+            <div><label class="block text-sm text-gray-400 mb-1">📤 Submit (contestants)</label>
+              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm" value="${base}?submit">
+                <button class="btn btn-secondary copy-btn" data-url="${base}?submit">📋</button></div></div>
+            <div><label class="block text-sm text-gray-400 mb-1">📊 Scoreboard (public)</label>
               <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm" value="${base}?board">
                 <button class="btn btn-secondary copy-btn" data-url="${base}?board">📋</button></div></div>
-            <div><label class="block text-sm text-gray-400 mb-1">⚖️ Judge Panel</label>
-              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm bg-yellow-900/20" value="${base}?judge=${JUDGE_SECRET}">
-                <button class="btn btn-secondary copy-btn" data-url="${base}?judge=${JUDGE_SECRET}">📋</button></div></div>
+            <div><label class="block text-sm text-gray-400 mb-1">⚖️ Judge Panel (SECRET)</label>
+              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm bg-yellow-900/20" value="${base}?judge=${CONFIG.JUDGE_SECRET}">
+                <button class="btn btn-secondary copy-btn" data-url="${base}?judge=${CONFIG.JUDGE_SECRET}">📋</button></div></div>
           </div>
         </div>`;
         
         html += `<div class="card">
-          <h2 class="text-lg font-bold text-white mb-4">📈 Stats</h2>
+          <h2 class="text-lg font-bold text-white mb-4">Stats</h2>
           <div class="grid grid-cols-3 gap-4 mb-4">
             <div class="p-3 rounded bg-gray-800/50 text-center">
               <span class="block text-2xl font-bold text-cyan-400">${Object.keys(DATA.teams).length}</span>
@@ -399,7 +373,7 @@ Reply with ONLY this JSON:
           <h1 class="font-display text-2xl text-yellow-400">⚖️ Judge Panel</h1>
           <div class="flex gap-2">
             <a href="?board" target="_blank" class="btn btn-secondary text-sm">📊 Board</a>
-            <a href="?" class="text-gray-400 hover:text-white">← Home</a>
+            <a href="?admin" class="text-gray-400 hover:text-white">← Admin</a>
           </div>
         </div>`;
       
@@ -430,7 +404,7 @@ Reply with ONLY this JSON:
           const prob = DATA.problems.find(p => p.id === sub.probId);
           const probIdx = DATA.problems.indexOf(prob);
           const scoreClass = sub.score === 100 ? 'text-green-400' : sub.score > 0 ? 'text-yellow-400' : 'text-red-400';
-          html += `<div class="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-blue-700/30">
+          html += `<div class="frozen-item flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-blue-700/30">
             <span class="text-blue-400 font-mono text-sm w-6">#${i+1}</span>
             <span class="w-8 h-8 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-sm">${probIdx >= 0 ? String.fromCharCode(65+probIdx) : '?'}</span>
             <div class="flex-1"><span class="text-white font-medium">${esc(sub.team)}</span>
@@ -466,31 +440,20 @@ Reply with ONLY this JSON:
     }
 
     function renderSubmit() {
-      const cfg = getConfig();
-      
       let html = `<div class="min-h-screen p-4"><div class="max-w-lg mx-auto">
         <div class="flex justify-between items-center mb-6">
           <h1 class="font-display text-xl text-cyan-400">${esc(DATA.name)}</h1>
           <a href="?" class="text-gray-400 hover:text-white">← Back</a>
         </div>`;
       
-      if (!cfg.apiKey) {
-        html += `<div class="card text-center bg-red-900/20 border-red-700/50">
-          <p class="text-red-400 font-bold mb-2">⚠️ Contest Not Ready</p>
-          <p class="text-gray-400 text-sm">Please check back later</p>
-        </div></div></div>`;
-        return html;
-      }
-      
       if (!contestStarted()) {
-        html += `<div class="card text-center"><p class="text-yellow-400 font-bold mb-2">⏳ Not Started Yet</p>
+        html += `<div class="card text-center"><p class="text-yellow-400 font-bold mb-2">⏳ Not Started</p>
           <p class="text-gray-400">Starts: ${new Date(DATA.startTime).toLocaleString()}</p></div></div></div>`;
         return html;
       }
       
       if (contestEnded()) {
-        html += `<div class="card text-center"><p class="text-red-400 font-bold text-xl">🏁 Contest Ended</p>
-          <a href="?board" class="btn btn-secondary mt-4">View Scoreboard</a></div></div></div>`;
+        html += `<div class="card text-center"><p class="text-red-400 font-bold text-xl">🏁 Contest Ended</p></div></div></div>`;
         return html;
       }
       
@@ -561,7 +524,7 @@ Reply with ONLY this JSON:
           </div>
           <div class="flex items-center gap-3">
             ${contestStarted() ? `<span class="font-mono text-xl text-cyan-400" id="timer">${fmtTime(getRemaining())}</span>` : ''}
-            <a href="?" class="text-gray-400 hover:text-white text-sm">← Back</a>
+            <a href="?" class="text-gray-400 hover:text-white text-sm">←</a>
           </div>
         </div>`;
       
@@ -618,12 +581,6 @@ Reply with ONLY this JSON:
     let selectedProb = null, solImg = null, solType = null;
 
     function bindEvents() {
-      document.getElementById('save-config')?.addEventListener('click', () => {
-        const apiKey = document.getElementById('cfg-apikey')?.value?.trim();
-        saveConfig({ apiKey });
-        alert('✅ API Key saved!');
-      });
-      
       document.getElementById('delete-contest')?.addEventListener('click', () => {
         if (confirm('DELETE this contest?')) {
           deleteData();
@@ -687,12 +644,12 @@ Reply with ONLY this JSON:
         DATA.partialCredit = partial;
         
         saveData(DATA);
-        alert('✅ Contest saved!');
+        alert('✅ Saved!');
         render();
       });
       
       document.getElementById('clear-subs')?.addEventListener('click', () => {
-        if (confirm('Clear all submissions?')) { DATA.teams = {}; DATA.submissions = []; saveData(DATA); render(); }
+        if (confirm('Clear all?')) { DATA.teams = {}; DATA.submissions = []; saveData(DATA); render(); }
       });
       
       document.querySelectorAll('.copy-btn').forEach(el => {
