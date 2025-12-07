@@ -1,305 +1,777 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OCR+AI math grader</title>
-
+  <title>ICPC Math Contest</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  <script src="config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    .file-input-label {
-      display: block;
-      border: 2px dashed #cbd5e1; /* gray-300 */
-      border-radius: 0.5rem;      /* rounded-lg */
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: background-color 0.2s, border-color 0.2s;
-    }
-    .file-input-label:hover,
-    .file-input-label.dragover {
-      background-color: #f1f5f9;  /* gray-100 */
-      border-color: #94a3b8;      /* gray-400 */
-    }
+    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; color: #f1f5f9; min-height: 100vh; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-display { font-family: 'Orbitron', sans-serif; }
+    .bg-grid { background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px); background-size: 50px 50px; }
+    .card { background: #12121a; border: 1px solid rgba(59,130,246,0.2); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+    .input { background: #1a1a25; border: 1px solid rgba(59,130,246,0.3); color: #f1f5f9; padding: 0.75rem 1rem; border-radius: 0.5rem; width: 100%; }
+    .input:focus { outline: none; border-color: #06b6d4; }
+    .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(59,130,246,0.3); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-secondary { background: #374151; color: white; }
+    .btn-secondary:hover { background: #4b5563; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-success:hover { background: #15803d; }
+    .btn-warning { background: #ca8a04; color: white; }
+    .btn-warning:hover { background: #a16207; }
+    .problem-cell { min-width: 60px; min-height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0.5rem; }
+    .cell-none { background: rgba(55,65,81,0.3); }
+    .cell-pending { background: linear-gradient(135deg, #1e3a5f, #1e40af); animation: pulse 2s infinite; }
+    .cell-wrong { background: linear-gradient(135deg, #7f1d1d, #b91c1c); }
+    .cell-partial { background: linear-gradient(135deg, #713f12, #ca8a04); }
+    .cell-correct { background: linear-gradient(135deg, #14532d, #16a34a); }
+    .cell-frozen { background: linear-gradient(135deg, #1e3a5f, #3b82f6); }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+    .upload-zone { border: 2px dashed rgba(59,130,246,0.3); background: rgba(30,58,95,0.1); border-radius: 0.75rem; padding: 1.5rem; text-align: center; cursor: pointer; }
+    .upload-zone:hover { border-color: #06b6d4; background: rgba(6,182,212,0.1); }
+    .rank-1 { color: #ffd700; }
+    .rank-2 { color: #c0c0c0; }
+    .rank-3 { color: #cd7f32; }
+    .frozen-item { transition: all 0.3s; }
+    .frozen-item:hover { background: rgba(59,130,246,0.1); }
   </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-full p-4 sm:p-6">
-
-  <div class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-xl shadow-lg">
-    <div class="text-center">
-      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Математик хариу шалгагч</h1>
-      <p class="mt-2 text-sm sm:text-base text-gray-600">
-        Асуулт болон хариултын зургийг оруулж 'Шалга' товчийг дараарай.
-      </p>
-    </div>
-
-    <div class="mt-6 space-y-6">
-
-      <div>
-        <label for="question-upload" class="file-input-label" id="question-drop-zone">
-          <span class="block text-lg font-semibold text-gray-700 mb-2">Асуултын зураг</span>
-          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-          <span class="block text-xs text-gray-500">Асуултын зургийг оруул.</span>
-        </label>
-        <input id="question-upload" class="sr-only" type="file" accept="image/*">
-        <div id="question-preview-container" class="hidden mt-2">
-          <p class="text-xs text-gray-500 mb-1">Preview:</p>
-          <img id="question-preview" class="w-full rounded-lg border border-gray-200" alt="Question preview">
-        </div>
-      </div>
-
-      <div>
-        <label for="answer-upload" class="file-input-label" id="answer-drop-zone">
-          <span class="block text-lg font-semibold text-gray-700 mb-2">Хариултын зураг</span>
-          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-          <span class="block text-xs text-gray-500">Хариултын зургийг оруул.</span>
-        </label>
-        <input id="answer-upload" class="sr-only" type="file" accept="image/*">
-        <div id="answer-preview-container" class="hidden mt-2">
-          <p class="text-xs text-gray-500 mb-1">Preview:</p>
-          <img id="answer-preview" class="w-full rounded-lg border border-gray-200" alt="Answer preview">
-        </div>
-      </div>
-
-      <button
-        id="check-button"
-        class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled
-      >
-        Шалга
-      </button>
-
-      <div id="result-container" class="hidden pt-4 border-t border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-800">Үр дүн:</h2>
-        <div id="result-content" class="mt-2 p-4 rounded-lg bg-gray-50 text-gray-700 text-sm whitespace-pre-wrap"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <script type="module">
-    const questionInput = document.getElementById('question-upload');
-    const answerInput = document.getElementById('answer-upload');
-    const questionPreview = document.getElementById('question-preview');
-    const answerPreview = document.getElementById('answer-preview');
-    const questionPreviewContainer = document.getElementById('question-preview-container');
-    const answerPreviewContainer = document.getElementById('answer-preview-container');
-    const checkButton = document.getElementById('check-button');
-    const resultContainer = document.getElementById('result-container');
-    const resultContent = document.getElementById('result-content');
-
-    let questionImg64 = null;
-    let answerImg64 = null;
-    let qType = null;
-    let aType = null;
-
-    questionInput.addEventListener('change', (e) => handleImage(e, true));
-    answerInput.addEventListener('change', (e) => handleImage(e, false));
-    checkButton.addEventListener('click', runGrading);
-
-    function handleImage(event, isQuestion) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload a valid image file.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (isQuestion) {
-          questionImg64 = e.target.result;
-          qType = file.type;
-          questionPreview.src = questionImg64;
-          questionPreviewContainer.classList.remove('hidden');
-        } else {
-          answerImg64 = e.target.result;
-          aType = file.type;
-          answerPreview.src = answerImg64;
-          answerPreviewContainer.classList.remove('hidden');
-        }
-        toggleButton();
-      };
-      reader.readAsDataURL(file);
+<body class="bg-grid">
+  <div id="app"></div>
+  
+  <script>
+    if (typeof CONFIG === 'undefined') {
+      document.getElementById('app').innerHTML = `
+        <div class="min-h-screen flex items-center justify-center p-6">
+          <div class="card max-w-md text-center">
+            <h1 class="text-2xl font-bold text-red-400 mb-4">⚠️ Config Missing</h1>
+            <p class="text-gray-400 mb-4">Please create a <code class="bg-gray-800 px-2 py-1 rounded">config.js</code> file in the same folder with:</p>
+            <pre class="bg-gray-900 p-4 rounded text-left text-sm text-green-400 overflow-x-auto">const CONFIG = {
+  GEMINI_API_KEY: 'your-api-key-here',
+  JUDGE_SECRET: 'your-secret-here'
+};</pre>
+          </div>
+        </div>`;
+      throw new Error('CONFIG not defined');
     }
 
-    function toggleButton() {
-      checkButton.disabled = !(questionImg64 && answerImg64);
+    const KEY = 'mathcontest_v10';
+    
+    function saveData(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
+    function loadData() {
+      try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch(e) {}
+      return null;
+    }
+    function deleteData() { localStorage.removeItem(KEY); localStorage.removeItem('myteam'); }
+
+    let DATA = loadData() || {
+      name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true,
+      problems: [], teams: {}, submissions: [], isFrozen: false
+    };
+    
+    let myTeam = localStorage.getItem('myteam') || null;
+    let revealHistory = [];
+
+    function getMode() {
+      const p = new URLSearchParams(location.search);
+      if (p.has('admin')) return 'admin';
+      if (p.has('submit')) return 'submit';
+      if (p.has('board')) return 'board';
+      if (p.get('judge') === CONFIG.JUDGE_SECRET) return 'judge';
+      return 'home';
+    }
+    
+    function genId() { return Math.random().toString(36).substr(2,8); }
+    function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    
+    function fmtTime(s) {
+      if (s < 0) s = 0;
+      const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = Math.floor(s%60);
+      return h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` : `${m}:${String(sec).padStart(2,'0')}`;
+    }
+    
+    function fmtDateTime(ts) { return new Date(ts).toLocaleTimeString(); }
+    
+    function contestStarted() { return DATA.startTime && Date.now() >= new Date(DATA.startTime).getTime(); }
+    function contestEnded() {
+      if (!DATA.startTime) return false;
+      return (Date.now() - new Date(DATA.startTime).getTime()) / 1000 >= DATA.duration * 60;
+    }
+    function getRemaining() {
+      if (!DATA.startTime) return 0;
+      return Math.max(0, DATA.duration * 60 - (Date.now() - new Date(DATA.startTime).getTime()) / 1000);
+    }
+    function isFrozenTime() {
+      const rem = getRemaining();
+      return rem > 0 && rem <= DATA.freezeTime * 60 && contestStarted();
+    }
+    function hasContest() { return DATA.name && DATA.problems.length > 0; }
+    
+    function getFrozenSubmissions() {
+      if (!DATA.startTime) return [];
+      const startMs = new Date(DATA.startTime).getTime();
+      const freezeAt = (DATA.duration - DATA.freezeTime) * 60 * 1000;
+      return DATA.submissions
+        .filter(s => (s.time - startMs) >= freezeAt && s.status === 'done')
+        .sort((a, b) => a.time - b.time);
+    }
+    
+    function getRevealedSubmissions() {
+      return DATA.submissions.filter(s => s.status === 'revealed').sort((a, b) => a.time - b.time);
     }
 
-    function setLoading(isLoading) {
-      if (isLoading) {
-        checkButton.disabled = true;
-        checkButton.innerHTML = `
-          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>Checking...</span>
-        `;
-        resultContainer.classList.remove('hidden');
-        resultContent.className = 'mt-2 p-4 rounded-lg bg-gray-100 text-gray-700 text-sm';
-        resultContent.textContent = 'Шалгаж байна... Түр хүлээнэ үү.';
-      } else {
-        checkButton.innerHTML = 'Check Answer';
-        toggleButton();
-      }
-    }
-
-    function showError(message) {
-      resultContainer.classList.remove('hidden');
-      resultContent.className = 'mt-2 p-4 rounded-lg bg-red-100 text-red-700 text-sm';
-      resultContent.innerHTML = `
-        <strong>Error:</strong> ${message}
-      `;
-    }
-
-    function displayResult(data) {
-      const { question_text, correct_answer, student_answer, is_correct, explanation } = data;
-
-      const bg = is_correct ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-      const title = is_correct ? 'Correct ✅' : 'Incorrect ❌';
-
-      resultContainer.classList.remove('hidden');
-      resultContent.className = `mt-2 p-4 rounded-lg text-sm ${bg}`;
-      resultContent.innerHTML = `
-        <h3 class="text-base font-bold mb-2">${title}</h3>
-        <p><strong>OCR Асуултын зурагнаас:</strong><br>${question_text || '<em>(not detected)</em>'}</p>
-        <p class="mt-2"><strong>AI -ын бодсон үр дүн:</strong><br>${correct_answer || '<em>(not provided)</em>'}</p>
-        <p class="mt-2"><strong>OCR хариултын зурагнаас:</strong><br>${student_answer || '<em>(not detected)</em>'}</p>
-        <p class="mt-2"><strong>Тайлбар:</strong><br>${explanation || '<em>(no explanation)</em>'}</p>
-      `;
-
-      console.log('Full AI result:', data);
-    }
-
-    async function fetchWithTimeout(url, options = {}, timeout = 20000) {
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), timeout);
-      const mergedOptions = { ...options, signal: controller.signal };
-
-      try {
-        const response = await fetch(url, mergedOptions);
-        clearTimeout(id);
-        return response;
-      } catch (err) {
-        clearTimeout(id);
-        throw err;
-      }
-    }
-
-    async function runGrading() {
-      if (!questionImg64 || !answerImg64) return;
-
-      setLoading(true);
-
-      try {
-        const baseQ = questionImg64.split(',')[1];
-        const baseA = answerImg64.split(',')[1];
-
-        const apiKey = "AIzaSyDWlGxZ0zItrAHfrSq3agsby6IoEhueflc"; 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-        const prompt = `
-You are grading a student's handwritten math solution.
-
-Image 1: the original math question.
-Image 2: the student's handwritten answer.
-
-1. Read and transcribe the math question from Image 1.
-2. Solve the question yourself.
-3. Read and transcribe the student's answer from Image 2.
-4. Determine if the student's answer is mathematically correct.
-5. Respond ONLY as a JSON object with this exact structure (no extra text):
-
-{
-  "question_text": "string - the question you read from Image 1",
-  "correct_answer": "string - the correct answer in a simple form",
-  "student_answer": "string - the answer you read from Image 2",
-  "is_correct": true or false,
-  "explanation": "string - a brief explanation of your judgement"
-}
-        `.trim();
-
-        const payload = {
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }]
-            },
-            {
-              role: "user",
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: qType,
-                    data: baseQ
-                  }
-                }
-              ]
-            },
-            {
-              role: "user",
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: aType,
-                    data: baseA
-                  }
-                }
-              ]
+    function calcScoreboard(showHidden = false) {
+      if (!DATA.startTime) return [];
+      const startMs = new Date(DATA.startTime).getTime();
+      const freezeAt = (DATA.duration - DATA.freezeTime) * 60;
+      
+      return Object.values(DATA.teams).map(team => {
+        let score = 0, time = 0, results = {};
+        DATA.problems.forEach(prob => {
+          const subs = DATA.submissions.filter(s => s.team === team.name && s.probId === prob.id).sort((a,b) => a.time - b.time);
+          let best = 0, tries = 0, solveAt = 0, pending = false, frozen = 0;
+          subs.forEach(sub => {
+            const subSec = (sub.time - startMs) / 1000;
+            const inFreeze = subSec >= freezeAt;
+            if (sub.status === 'pending') pending = true;
+            else if (inFreeze && sub.status === 'done' && !showHidden) frozen++;
+            else if (sub.status === 'done' || sub.status === 'revealed') {
+              tries++;
+              if (sub.score > best) { best = sub.score; solveAt = subSec; }
             }
-          ]
-        };
+          });
+          results[prob.id] = { score: best, tries, solveAt, pending, frozen,
+            status: pending ? 'pending' : frozen > 0 ? 'frozen' : best === 100 ? 'correct' : best > 0 ? 'partial' : tries > 0 ? 'wrong' : 'none' };
+          score += best;
+          if (best > 0) time += solveAt + (tries - 1) * 1200;
+        });
+        return { name: team.name, score, time, results, solved: Object.values(results).filter(r => r.score === 100).length };
+      }).sort((a,b) => b.score !== a.score ? b.score - a.score : a.time - b.time);
+    }
 
-        const res = await fetchWithTimeout(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        }, 20000);
+    async function gradeWithAI(sub, prob) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
+      
+      const prompt = `You are a LENIENT math grader. Be encouraging!
 
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`API error ${res.status}: ${text}`);
-        }
+TASK 1 - Find team name:
+Look for "team:" or "Team:" on the paper. Return whatever comes after it.
+Examples: "Team: alpha" → "alpha", "team:E13" → "E13"
 
+TASK 2 - Read the student's work:
+Transcribe what you see written.
+
+TASK 3 - Grade LENIENTLY:
+${prob.img ? '- Compare to problem in first image' : '- Grade the math shown'}
+- Max: ${prob.points} points
+- Full marks for correct answer
+- 70-90% for small errors
+- 40-60% for partial work
+- 20-30% for any attempt
+- 0 only if blank/nonsense
+
+Reply with ONLY this JSON:
+{"team_name":"NAME","detected_text":"WHAT_YOU_SEE","score":NUMBER,"feedback":"COMMENT"}`;
+
+      try {
+        const parts = [{ text: prompt }];
+        if (prob.img) parts.push({ inlineData: { mimeType: prob.imgType, data: prob.img } });
+        parts.push({ inlineData: { mimeType: sub.imgType, data: sub.img } });
+        
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ role: 'user', parts }] })
+        });
+        
+        if (!res.ok) throw new Error(`API ${res.status}`);
+        
         const json = await res.json();
-
-        const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!rawText) {
-          console.error('Unexpected API response:', json);
-          throw new Error('No text content returned from the model.');
+        if (json.error) throw new Error(json.error.message);
+        
+        let text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (!text) throw new Error('Empty response');
+        
+        text = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+        
+        let parsed;
+        try { parsed = JSON.parse(text); }
+        catch(e) {
+          const m = text.match(/\{[\s\S]*?\}/);
+          if (m) parsed = JSON.parse(m[0]);
+          else throw new Error('Invalid JSON');
         }
-
-        const cleaned = rawText
-          .replace(/^```json\s*/i, '')
-          .replace(/^```\s*/i, '')
-          .replace(/```$/i, '')
-          .trim();
-
-        const data = JSON.parse(cleaned);
-        displayResult(data);
-
-      } catch (err) {
-        console.error(err);
-        showError(err.message || 'Unknown error');
-      } finally {
-        setLoading(false);
+        
+        return {
+          team: parsed.team_name || null,
+          detected: parsed.detected_text || text,
+          score: Math.round((parsed.score / prob.points) * 100),
+          feedback: parsed.feedback || 'Graded'
+        };
+      } catch(e) {
+        console.error('Grade error:', e);
+        return { team: null, detected: 'Error', score: 0, feedback: e.message };
       }
     }
+
+    function render() {
+      const app = document.getElementById('app');
+      const mode = getMode();
+      if (mode === 'admin') app.innerHTML = renderAdmin();
+      else if (mode === 'submit') app.innerHTML = renderSubmit();
+      else if (mode === 'board') app.innerHTML = renderBoard();
+      else if (mode === 'judge') app.innerHTML = renderJudge();
+      else app.innerHTML = renderHome();
+      bindEvents();
+    }
+
+    function renderHome() {
+      let html = `<div class="min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-md w-full text-center">
+          <h1 class="font-display text-4xl text-cyan-400 mb-2">ICPC Math</h1>
+          <p class="text-gray-400 mb-8">AI-Powered Competition</p>`;
+      
+      if (hasContest()) {
+        html += `<div class="card text-left mb-6">
+          <h2 class="text-xl font-bold text-white mb-2">${esc(DATA.name)}</h2>
+          <p class="text-gray-400 text-sm mb-3">${DATA.problems.length} problems • ${DATA.duration} min</p>`;
+        
+        if (contestEnded()) html += `<div class="p-3 rounded-lg bg-red-900/30 text-red-400 text-center font-bold">🏁 Contest Ended</div>`;
+        else if (contestStarted()) html += `<div class="p-3 rounded-lg bg-green-900/30 text-green-400 text-center"><span class="font-bold">🟢 Running</span><br><span class="font-mono text-xl" id="timer">${fmtTime(getRemaining())}</span></div>`;
+        else if (DATA.startTime) html += `<div class="p-3 rounded-lg bg-yellow-900/30 text-yellow-400 text-center"><span class="font-bold">⏳ Starts</span><br><span class="text-white">${new Date(DATA.startTime).toLocaleString()}</span></div>`;
+        
+        html += `</div><div class="space-y-3">`;
+        if (contestStarted() && !contestEnded()) html += `<a href="?submit" class="btn btn-primary block w-full text-center">📤 Submit Solution</a>`;
+        html += `<a href="?board" class="btn btn-secondary block w-full text-center">📊 Scoreboard</a>
+          <a href="?admin" class="btn btn-secondary block w-full text-center">⚙️ Admin</a></div>`;
+      } else {
+        html += `<p class="text-gray-500 mb-6">No contest yet</p><a href="?admin" class="btn btn-primary">Create Contest</a>`;
+      }
+      html += `</div></div>`;
+      return html;
+    }
+
+    function renderAdmin() {
+      const base = location.origin + location.pathname;
+      let html = `<div class="min-h-screen p-4 sm:p-6"><div class="max-w-2xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="font-display text-2xl text-cyan-400">Admin</h1>
+          <a href="?" class="text-gray-400 hover:text-white">← Back</a>
+        </div>`;
+      
+      if (hasContest()) {
+        html += `<div class="card bg-red-900/20 border-red-700/50 mb-6">
+          <div class="flex justify-between items-center flex-wrap gap-3">
+            <div><p class="text-white font-bold">${esc(DATA.name)}</p>
+              <p class="text-sm text-gray-400">${contestEnded() ? '🏁 Ended' : contestStarted() ? '🟢 Running' : '⏳ Scheduled'}</p></div>
+            <button id="delete-contest" class="btn btn-danger">🗑️ Delete</button>
+          </div>
+        </div>`;
+      }
+      
+      html += `<div class="card">
+        <h2 class="text-lg font-bold text-white mb-4">${hasContest() ? 'Edit' : 'Create'} Contest</h2>
+        <div class="space-y-4">
+          <div><label class="block text-sm text-gray-400 mb-1">Contest Name *</label>
+            <input type="text" id="f-name" class="input" value="${esc(DATA.name)}" placeholder="Math Olympiad"></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="block text-sm text-gray-400 mb-1">Start Time *</label>
+              <input type="datetime-local" id="f-start" class="input" value="${DATA.startTime ? new Date(DATA.startTime).toISOString().slice(0,16) : ''}"></div>
+            <div><label class="block text-sm text-gray-400 mb-1">Duration (min)</label>
+              <input type="number" id="f-duration" class="input" value="${DATA.duration}"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="block text-sm text-gray-400 mb-1">Freeze Last (min)</label>
+              <input type="number" id="f-freeze" class="input" value="${DATA.freezeTime}"></div>
+            <div class="flex items-center pt-6">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="f-partial" ${DATA.partialCredit ? 'checked' : ''} class="w-5 h-5">
+                <span class="text-gray-300">Partial Credit</span></label>
+            </div>
+          </div>
+        </div>
+      </div>`;
+      
+      html += `<div class="card">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold text-white">Problems</h2>
+          <button id="add-problem" class="btn btn-secondary text-sm">+ Add</button>
+        </div>
+        <div id="problems-container" class="space-y-4">`;
+      
+      DATA.problems.forEach((p, i) => {
+        html += `<div class="p-4 rounded-lg bg-gray-800/50 border border-gray-700" data-pid="${p.id}">
+          <div class="flex gap-3 items-center mb-3">
+            <span class="w-8 h-8 rounded bg-blue-600 text-white flex items-center justify-center font-bold">${String.fromCharCode(65+i)}</span>
+            <input type="text" class="input flex-1 prob-name" value="${esc(p.name)}">
+            <input type="number" class="input w-20 text-center prob-pts" value="${p.points}">
+            <button class="text-red-400 hover:text-red-300 prob-del text-xl">×</button>
+          </div>
+          <div class="upload-zone prob-upload">
+            ${p.img ? `<img src="data:${p.imgType};base64,${p.img}" class="max-h-24 mx-auto rounded mb-1"><span class="text-xs text-gray-400">Click to change</span>` : '<span class="text-gray-400">📷 Upload problem image</span>'}
+          </div>
+          <input type="file" class="hidden prob-file" accept="image/*">
+        </div>`;
+      });
+      
+      if (DATA.problems.length === 0) html += `<p class="text-gray-500 text-center py-4">Click "+ Add"</p>`;
+      html += `</div></div>`;
+      
+      html += `<button id="save-contest" class="btn btn-primary w-full text-lg py-4">💾 Save Contest</button>`;
+      
+      if (hasContest()) {
+        html += `<div class="card mt-6">
+          <h2 class="text-lg font-bold text-white mb-4">Share Links</h2>
+          <div class="space-y-3">
+            <div><label class="block text-sm text-gray-400 mb-1">📤 Submit (contestants)</label>
+              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm" value="${base}?submit">
+                <button class="btn btn-secondary copy-btn" data-url="${base}?submit">📋</button></div></div>
+            <div><label class="block text-sm text-gray-400 mb-1">📊 Scoreboard (public)</label>
+              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm" value="${base}?board">
+                <button class="btn btn-secondary copy-btn" data-url="${base}?board">📋</button></div></div>
+            <div><label class="block text-sm text-gray-400 mb-1">⚖️ Judge Panel (SECRET)</label>
+              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm bg-yellow-900/20" value="${base}?judge=${CONFIG.JUDGE_SECRET}">
+                <button class="btn btn-secondary copy-btn" data-url="${base}?judge=${CONFIG.JUDGE_SECRET}">📋</button></div></div>
+          </div>
+        </div>`;
+        
+        html += `<div class="card">
+          <h2 class="text-lg font-bold text-white mb-4">Stats</h2>
+          <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="p-3 rounded bg-gray-800/50 text-center">
+              <span class="block text-2xl font-bold text-cyan-400">${Object.keys(DATA.teams).length}</span>
+              <span class="text-gray-400 text-sm">Teams</span></div>
+            <div class="p-3 rounded bg-gray-800/50 text-center">
+              <span class="block text-2xl font-bold text-green-400">${DATA.submissions.length}</span>
+              <span class="text-gray-400 text-sm">Submissions</span></div>
+            <div class="p-3 rounded bg-gray-800/50 text-center">
+              <span class="block text-2xl font-bold text-blue-400">${getFrozenSubmissions().length}</span>
+              <span class="text-gray-400 text-sm">Frozen</span></div>
+          </div>
+          <button id="clear-subs" class="btn btn-secondary w-full">🗑️ Clear Submissions</button>
+        </div>`;
+      }
+      
+      html += `</div></div>`;
+      return html;
+    }
+
+    function renderJudge() {
+      const frozen = getFrozenSubmissions();
+      const revealed = getRevealedSubmissions();
+      
+      let html = `<div class="min-h-screen p-4 sm:p-6"><div class="max-w-3xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="font-display text-2xl text-yellow-400">⚖️ Judge Panel</h1>
+          <div class="flex gap-2">
+            <a href="?board" target="_blank" class="btn btn-secondary text-sm">📊 Board</a>
+            <a href="?admin" class="text-gray-400 hover:text-white">← Admin</a>
+          </div>
+        </div>`;
+      
+      html += `<div class="card mb-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div><span class="block text-3xl font-bold text-blue-400">${frozen.length}</span><span class="text-gray-400 text-sm">Frozen</span></div>
+          <div><span class="block text-3xl font-bold text-green-400">${revealed.length}</span><span class="text-gray-400 text-sm">Revealed</span></div>
+          <div><span class="block text-3xl font-bold text-cyan-400">${DATA.submissions.length}</span><span class="text-gray-400 text-sm">Total</span></div>
+        </div>
+      </div>`;
+      
+      html += `<div class="card mb-6">
+        <div class="flex gap-3 flex-wrap">
+          <button id="reveal-next" class="btn btn-success flex-1" ${frozen.length === 0 ? 'disabled' : ''}>▶️ Reveal Next (${frozen.length})</button>
+          <button id="undo-reveal" class="btn btn-warning" ${revealed.length === 0 ? 'disabled' : ''}>↩️ Undo</button>
+          <button id="reveal-all" class="btn btn-danger" ${frozen.length === 0 ? 'disabled' : ''}>⏭️ All</button>
+        </div>
+      </div>`;
+      
+      html += `<div class="card">
+        <h2 class="text-lg font-bold text-white mb-4">❄️ Frozen Queue</h2>`;
+      
+      if (frozen.length === 0) {
+        html += `<p class="text-gray-500 text-center py-4">No frozen submissions</p>`;
+      } else {
+        html += `<div class="space-y-2">`;
+        frozen.forEach((sub, i) => {
+          const prob = DATA.problems.find(p => p.id === sub.probId);
+          const probIdx = DATA.problems.indexOf(prob);
+          const scoreClass = sub.score === 100 ? 'text-green-400' : sub.score > 0 ? 'text-yellow-400' : 'text-red-400';
+          html += `<div class="frozen-item flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-blue-700/30">
+            <span class="text-blue-400 font-mono text-sm w-6">#${i+1}</span>
+            <span class="w-8 h-8 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-sm">${probIdx >= 0 ? String.fromCharCode(65+probIdx) : '?'}</span>
+            <div class="flex-1"><span class="text-white font-medium">${esc(sub.team)}</span>
+              <span class="text-gray-500 text-xs ml-2">${fmtDateTime(sub.time)}</span></div>
+            <span class="font-mono font-bold text-lg ${scoreClass}">${sub.score}</span>
+            <span class="text-blue-400">❄️</span>
+          </div>`;
+        });
+        html += `</div>`;
+      }
+      html += `</div>`;
+      
+      if (revealed.length > 0) {
+        html += `<div class="card">
+          <h2 class="text-lg font-bold text-white mb-4">✅ Revealed</h2>
+          <div class="space-y-2 max-h-64 overflow-y-auto">`;
+        revealed.slice().reverse().forEach(sub => {
+          const prob = DATA.problems.find(p => p.id === sub.probId);
+          const probIdx = DATA.problems.indexOf(prob);
+          const scoreClass = sub.score === 100 ? 'text-green-400' : sub.score > 0 ? 'text-yellow-400' : 'text-red-400';
+          html += `<div class="flex items-center gap-3 p-2 rounded bg-gray-800/30 opacity-70">
+            <span class="w-7 h-7 rounded bg-green-600/50 text-white flex items-center justify-center font-bold text-sm">${probIdx >= 0 ? String.fromCharCode(65+probIdx) : '?'}</span>
+            <span class="flex-1 text-white text-sm">${esc(sub.team)}</span>
+            <span class="font-mono font-bold ${scoreClass}">${sub.score}</span>
+            <span class="text-green-400 text-sm">✓</span>
+          </div>`;
+        });
+        html += `</div></div>`;
+      }
+      
+      html += `</div></div>`;
+      return html;
+    }
+
+    function renderSubmit() {
+      let html = `<div class="min-h-screen p-4"><div class="max-w-lg mx-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="font-display text-xl text-cyan-400">${esc(DATA.name)}</h1>
+          <a href="?" class="text-gray-400 hover:text-white">← Back</a>
+        </div>`;
+      
+      if (!contestStarted()) {
+        html += `<div class="card text-center"><p class="text-yellow-400 font-bold mb-2">⏳ Not Started</p>
+          <p class="text-gray-400">Starts: ${new Date(DATA.startTime).toLocaleString()}</p></div></div></div>`;
+        return html;
+      }
+      
+      if (contestEnded()) {
+        html += `<div class="card text-center"><p class="text-red-400 font-bold text-xl">🏁 Contest Ended</p></div></div></div>`;
+        return html;
+      }
+      
+      html += `<div class="card text-center mb-4">
+        <span class="font-mono text-2xl text-cyan-400" id="timer">${fmtTime(getRemaining())}</span>
+        ${isFrozenTime() ? '<span class="ml-2 text-blue-400">❄️</span>' : ''}
+      </div>`;
+      
+      if (myTeam) {
+        const board = calcScoreboard(true);
+        const me = board.find(t => t.name === myTeam);
+        html += `<div class="card mb-4">
+          <div class="flex justify-between items-center">
+            <div><span class="text-gray-400 text-sm">Team</span><span class="block text-lg font-bold text-white">${esc(myTeam)}</span></div>
+            ${me ? `<span class="text-3xl font-bold text-cyan-400">${me.score}</span>` : ''}
+          </div>
+          ${me ? `<div class="mt-3 flex gap-2 flex-wrap">${DATA.problems.map((p,i) => {
+            const r = me.results[p.id] || {status:'none',score:0};
+            const cls = r.status==='pending'?'cell-pending':r.status==='correct'?'cell-correct':r.status==='partial'?'cell-partial':r.status==='wrong'?'cell-wrong':'cell-none';
+            return `<div class="problem-cell ${cls}"><span class="font-bold text-white text-sm">${String.fromCharCode(65+i)}</span><span class="text-xs text-white/70">${r.score||'—'}</span></div>`;
+          }).join('')}</div>` : ''}
+        </div>`;
+      } else {
+        html += `<div class="card mb-4 text-center">
+          <p class="text-gray-400">📝 Write <span class="font-mono text-cyan-400 font-bold">team:YourName</span> on your paper</p>
+        </div>`;
+      }
+      
+      html += `<div class="card">
+        <h2 class="font-bold text-white mb-4">Submit Solution</h2>
+        <div class="mb-4">
+          <label class="block text-sm text-gray-400 mb-2">Select Problem</label>
+          <div class="grid grid-cols-${Math.min(DATA.problems.length, 5)} gap-2">
+            ${DATA.problems.map((p,i) => `<button class="prob-select p-3 rounded-lg border-2 border-gray-700 hover:border-cyan-500 text-center" data-id="${p.id}">
+              <span class="block text-xl font-bold text-cyan-400">${String.fromCharCode(65+i)}</span>
+              <span class="block text-xs text-gray-400 truncate">${esc(p.name)}</span></button>`).join('')}
+          </div>
+        </div>
+        <div id="prob-preview" class="hidden mb-4 p-3 rounded-lg bg-gray-800/50">
+          <p class="text-xs text-gray-400 mb-2">Problem:</p>
+          <img id="prob-img" class="max-h-40 mx-auto rounded">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm text-gray-400 mb-2">Your Solution Photo</label>
+          <div class="upload-zone" id="sol-upload">
+            <div id="sol-placeholder"><p class="text-gray-400">📷 Tap to take photo</p></div>
+            <div id="sol-preview" class="hidden"><img id="sol-img" class="max-h-40 mx-auto rounded mb-1">
+              <p class="text-xs text-gray-400">Tap to change</p></div>
+          </div>
+          <input type="file" id="sol-input" class="hidden" accept="image/*" capture="environment">
+        </div>
+        <button id="submit-btn" class="btn btn-primary w-full" disabled>📤 Submit</button>
+        <div id="result" class="hidden mt-4 p-4 rounded-lg"></div>
+      </div></div></div>`;
+      return html;
+    }
+
+    function renderBoard() {
+      const board = calcScoreboard(false);
+      const frozenCount = getFrozenSubmissions().length;
+      
+      let html = `<div class="min-h-screen p-4">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <div class="flex items-center gap-3">
+            <h1 class="font-display text-xl sm:text-2xl text-cyan-400">${esc(DATA.name)}</h1>
+            ${contestEnded() ? '<span class="px-2 py-1 rounded bg-red-900/50 text-red-400 text-xs">ENDED</span>' : ''}
+            ${frozenCount > 0 ? `<span class="px-2 py-1 rounded bg-blue-900/50 text-blue-400 text-xs">❄️ ${frozenCount}</span>` : ''}
+          </div>
+          <div class="flex items-center gap-3">
+            ${contestStarted() ? `<span class="font-mono text-xl text-cyan-400" id="timer">${fmtTime(getRemaining())}</span>` : ''}
+            <a href="?" class="text-gray-400 hover:text-white text-sm">←</a>
+          </div>
+        </div>`;
+      
+      if (DATA.problems.length === 0) {
+        html += `<div class="card text-center"><p class="text-gray-500">No problems</p></div>`;
+      } else {
+        html += `<div class="overflow-x-auto rounded-xl border border-blue-900/30 bg-gray-900/50">
+          <table class="w-full min-w-max"><thead>
+            <tr class="text-xs text-gray-400 uppercase border-b border-gray-800">
+              <th class="px-3 py-3 text-left w-12">#</th>
+              <th class="px-3 py-3 text-left">Team</th>
+              ${DATA.problems.map((p,i) => `<th class="px-2 py-3 text-center w-16">${String.fromCharCode(65+i)}</th>`).join('')}
+              <th class="px-3 py-3 text-center w-20">Score</th>
+              <th class="px-3 py-3 text-center w-24">Time</th>
+            </tr>
+          </thead><tbody>`;
+        
+        if (board.length === 0) {
+          html += `<tr><td colspan="${DATA.problems.length + 4}" class="text-center py-8 text-gray-500">No teams yet</td></tr>`;
+        } else {
+          board.forEach((t, i) => {
+            html += `<tr class="border-b border-gray-800/50">
+              <td class="px-3 py-2 font-display font-bold ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'text-gray-400'}">${i<3?['🥇','🥈','🥉'][i]:'#'+(i+1)}</td>
+              <td class="px-3 py-2 text-white font-medium">${esc(t.name)}</td>`;
+            
+            DATA.problems.forEach(p => {
+              const r = t.results[p.id] || { status: 'none', score: 0 };
+              const cls = r.status === 'pending' ? 'cell-pending' : r.status === 'frozen' ? 'cell-frozen' : r.status === 'correct' ? 'cell-correct' : r.status === 'partial' ? 'cell-partial' : r.status === 'wrong' ? 'cell-wrong' : 'cell-none';
+              html += `<td class="px-2 py-2 text-center"><div class="problem-cell ${cls} mx-auto">
+                <span class="font-mono text-xs font-bold text-white">${r.status === 'frozen' ? '?' : r.status !== 'none' ? r.score : '—'}</span>
+                ${r.frozen > 0 ? `<span class="text-xs text-blue-300">+${r.frozen}</span>` : ''}
+              </div></td>`;
+            });
+            
+            html += `<td class="px-3 py-2 text-center font-mono font-bold text-xl text-cyan-400">${t.score}</td>
+              <td class="px-3 py-2 text-center font-mono text-gray-400 text-sm">${fmtTime(t.time)}</td></tr>`;
+          });
+        }
+        
+        html += `</tbody></table></div>`;
+        
+        html += `<div class="mt-4 flex justify-center gap-4 flex-wrap text-xs">
+          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-correct"></div><span class="text-gray-400">100</span></div>
+          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-partial"></div><span class="text-gray-400">Partial</span></div>
+          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-wrong"></div><span class="text-gray-400">0</span></div>
+          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-frozen"></div><span class="text-gray-400">Frozen</span></div>
+        </div>`;
+      }
+      
+      html += `</div>`;
+      return html;
+    }
+
+    let selectedProb = null, solImg = null, solType = null;
+
+    function bindEvents() {
+      document.getElementById('delete-contest')?.addEventListener('click', () => {
+        if (confirm('DELETE this contest?')) {
+          deleteData();
+          DATA = { name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true, problems: [], teams: {}, submissions: [], isFrozen: false };
+          myTeam = null; render();
+        }
+      });
+      
+      document.getElementById('add-problem')?.addEventListener('click', () => {
+        DATA.problems.push({ id: genId(), name: 'Problem ' + (DATA.problems.length + 1), points: 100, img: null, imgType: null });
+        render();
+      });
+      
+      document.querySelectorAll('.prob-upload').forEach(el => {
+        el.addEventListener('click', () => el.parentElement.querySelector('.prob-file')?.click());
+      });
+      
+      document.querySelectorAll('.prob-file').forEach(el => {
+        el.addEventListener('change', e => {
+          const file = e.target.files[0]; if (!file) return;
+          const pid = e.target.closest('[data-pid]').dataset.pid;
+          const reader = new FileReader();
+          reader.onload = ev => {
+            const prob = DATA.problems.find(p => p.id === pid);
+            if (prob) { prob.img = ev.target.result.split(',')[1]; prob.imgType = file.type; render(); }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+      
+      document.querySelectorAll('.prob-del').forEach(el => {
+        el.addEventListener('click', () => {
+          DATA.problems = DATA.problems.filter(p => p.id !== el.closest('[data-pid]').dataset.pid);
+          render();
+        });
+      });
+      
+      document.getElementById('save-contest')?.addEventListener('click', () => {
+        const name = document.getElementById('f-name')?.value?.trim();
+        const start = document.getElementById('f-start')?.value;
+        const duration = parseInt(document.getElementById('f-duration')?.value) || 180;
+        const freeze = parseInt(document.getElementById('f-freeze')?.value) || 30;
+        const partial = document.getElementById('f-partial')?.checked ?? true;
+        
+        if (!name) { alert('❌ Enter contest name'); return; }
+        if (!start) { alert('❌ Set start time'); return; }
+        if (DATA.problems.length === 0) { alert('❌ Add at least one problem'); return; }
+        
+        document.querySelectorAll('[data-pid]').forEach(el => {
+          const prob = DATA.problems.find(p => p.id === el.dataset.pid);
+          if (prob) {
+            prob.name = el.querySelector('.prob-name')?.value || prob.name;
+            prob.points = parseInt(el.querySelector('.prob-pts')?.value) || 100;
+          }
+        });
+        
+        DATA.name = name;
+        DATA.startTime = new Date(start).toISOString();
+        DATA.duration = duration;
+        DATA.freezeTime = freeze;
+        DATA.partialCredit = partial;
+        
+        saveData(DATA);
+        alert('✅ Saved!');
+        render();
+      });
+      
+      document.getElementById('clear-subs')?.addEventListener('click', () => {
+        if (confirm('Clear all?')) { DATA.teams = {}; DATA.submissions = []; saveData(DATA); render(); }
+      });
+      
+      document.querySelectorAll('.copy-btn').forEach(el => {
+        el.addEventListener('click', () => {
+          navigator.clipboard.writeText(el.dataset.url);
+          el.textContent = '✓'; setTimeout(() => el.textContent = '📋', 1000);
+        });
+      });
+      
+      document.getElementById('reveal-next')?.addEventListener('click', () => {
+        const frozen = getFrozenSubmissions();
+        if (frozen.length > 0) {
+          frozen[0].status = 'revealed';
+          revealHistory.push(frozen[0].id);
+          saveData(DATA); render();
+        }
+      });
+      
+      document.getElementById('undo-reveal')?.addEventListener('click', () => {
+        if (revealHistory.length > 0) {
+          const lastId = revealHistory.pop();
+          const sub = DATA.submissions.find(s => s.id === lastId);
+          if (sub) { sub.status = 'done'; saveData(DATA); render(); }
+        }
+      });
+      
+      document.getElementById('reveal-all')?.addEventListener('click', () => {
+        if (confirm('Reveal ALL?')) {
+          getFrozenSubmissions().forEach(sub => {
+            sub.status = 'revealed';
+            revealHistory.push(sub.id);
+          });
+          saveData(DATA); render();
+        }
+      });
+      
+      document.querySelectorAll('.prob-select').forEach(el => {
+        el.addEventListener('click', () => {
+          document.querySelectorAll('.prob-select').forEach(b => b.classList.remove('border-cyan-500', 'bg-cyan-900/30'));
+          el.classList.add('border-cyan-500', 'bg-cyan-900/30');
+          selectedProb = el.dataset.id;
+          const prob = DATA.problems.find(p => p.id === selectedProb);
+          const preview = document.getElementById('prob-preview'), img = document.getElementById('prob-img');
+          if (prob?.img && preview && img) { img.src = `data:${prob.imgType};base64,${prob.img}`; preview.classList.remove('hidden'); }
+          else preview?.classList.add('hidden');
+          updateBtn();
+        });
+      });
+      
+      document.getElementById('sol-upload')?.addEventListener('click', () => document.getElementById('sol-input')?.click());
+      
+      document.getElementById('sol-input')?.addEventListener('change', e => {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          solImg = ev.target.result.split(',')[1]; solType = file.type;
+          document.getElementById('sol-placeholder')?.classList.add('hidden');
+          const preview = document.getElementById('sol-preview'), img = document.getElementById('sol-img');
+          if (preview && img) { img.src = ev.target.result; preview.classList.remove('hidden'); }
+          updateBtn();
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      document.getElementById('submit-btn')?.addEventListener('click', doSubmit);
+    }
+    
+    function updateBtn() {
+      const btn = document.getElementById('submit-btn');
+      if (btn) btn.disabled = !selectedProb || !solImg;
+    }
+    
+    async function doSubmit() {
+      if (!selectedProb || !solImg) return;
+      
+      const btn = document.getElementById('submit-btn'), result = document.getElementById('result');
+      btn.disabled = true; btn.textContent = '⏳ Grading...';
+      result.classList.remove('hidden');
+      result.className = 'mt-4 p-4 rounded-lg bg-blue-900/30 text-blue-300';
+      result.textContent = 'AI is reading...';
+      
+      const prob = DATA.problems.find(p => p.id === selectedProb);
+      const res = await gradeWithAI({ img: solImg, imgType: solType }, prob);
+      
+      const sub = { id: genId(), probId: selectedProb, time: Date.now(), team: res.team, score: res.score, feedback: res.feedback, detected: res.detected, status: 'done' };
+      
+      if (res.team && !DATA.teams[res.team]) DATA.teams[res.team] = { name: res.team };
+      if (res.team) { myTeam = res.team; localStorage.setItem('myteam', res.team); }
+      
+      DATA.submissions.push(sub);
+      saveData(DATA);
+      
+      if (!res.team) {
+        result.className = 'mt-4 p-4 rounded-lg bg-yellow-900/30 text-yellow-300';
+        result.innerHTML = `<p class="font-bold">⚠️ Team not detected</p>
+          <p class="text-sm mt-2"><b>AI read:</b> "${esc(res.detected)}"</p>
+          <p class="text-sm mt-1"><b>Score:</b> ${res.score}/100</p>
+          <p class="text-xs mt-2">${esc(res.feedback)}</p>`;
+      } else {
+        const cls = res.score === 100 ? 'bg-green-900/30 text-green-300' : res.score > 0 ? 'bg-yellow-900/30 text-yellow-300' : 'bg-red-900/30 text-red-300';
+        result.className = `mt-4 p-4 rounded-lg ${cls}`;
+        result.innerHTML = `<div class="flex justify-between items-center">
+          <span class="font-bold">Team: ${esc(res.team)}</span>
+          <span class="text-2xl font-bold">${res.score}/100</span>
+        </div>
+        <p class="text-sm mt-2"><b>AI read:</b> "${esc(res.detected)}"</p>
+        <p class="text-sm mt-1">${esc(res.feedback)}</p>`;
+      }
+      
+      selectedProb = null; solImg = null; solType = null;
+      btn.textContent = '📤 Submit';
+      setTimeout(render, 3000);
+    }
+
+    setInterval(() => {
+      const timer = document.getElementById('timer');
+      if (timer && contestStarted()) timer.textContent = contestEnded() ? '0:00' : fmtTime(getRemaining());
+      const mode = getMode();
+      if (mode === 'board' || mode === 'judge') { const d = loadData(); if (d) DATA = d; render(); }
+    }, 1000);
+
+    render();
   </script>
 </body>
 </html>
