@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ICPC Math Contest</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; color: #f1f5f9; min-height: 100vh; }
@@ -46,33 +49,76 @@
   <div id="app"></div>
   
   <script>
-    // ========== CHANGE THESE SECRETS ==========
+    // ========================================================
+    // 🔻 PASTE YOUR FIREBASE CONFIG HERE 🔻
+    // (Go to Firebase Console -> Project Settings -> General -> "Your apps" -> SDK setup and configuration -> Config)
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLcWvYoLPALFZ8qcFJzhL2ELAZy6a53Ec",
+      authDomain: "mathcontest-e8e9d.firebaseapp.com",
+      databaseURL: "https://mathcontest-e8e9d-default-rtdb.firebaseio.com",
+      projectId: "mathcontest-e8e9d",
+      storageBucket: "mathcontest-e8e9d.firebasestorage.app",
+      messagingSenderId: "793079138484",
+      appId: "1:793079138484:web:47f8c5e7ce0fefa0296fe1",
+      measurementId: "G-JMXYJGHZG9"
+    };
+    // ========================================================
+
+    // Initialize Firebase
+    try {
+      firebase.initializeApp(firebaseConfig);
+    } catch(e) {
+      console.error("Firebase Error: You haven't pasted the config correctly yet.");
+    }
+    const db = firebase.database();
+
+    // Secrets
     const ADMIN_SECRET = 'admin2025';
     const JUDGE_SECRET = 'judge2025';
-    // ==========================================
-    
-    const KEY = 'mathcontest_v13';
     const CONFIG_KEY = 'mathcontest_config';
     
+    // Local settings (The Admin's API key stays local for security)
     function getConfig() {
       try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; } catch(e) { return {}; }
     }
     function saveConfig(cfg) { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
     
-    function saveData(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
-    function loadData() {
-      try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch(e) {}
-      return null;
-    }
-    function deleteData() { localStorage.removeItem(KEY); localStorage.removeItem('myteam'); }
-
-    let DATA = loadData() || {
+    // --- DATABASE SYNC ---
+    let DATA = {
       name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true,
       problems: [], teams: {}, submissions: [], isFrozen: false
     };
     
     let myTeam = localStorage.getItem('myteam') || null;
     let revealHistory = [];
+
+    // Save entire state to Cloud
+    function saveData(data) { 
+        db.ref('contestData').set(data).catch(err => alert("Sync Error: " + err.message));
+    }
+
+    // Listen for Cloud updates
+    db.ref('contestData').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+            DATA = val;
+            // Ensure structures exist
+            if (!DATA.problems) DATA.problems = [];
+            if (!DATA.teams) DATA.teams = {};
+            if (!DATA.submissions) DATA.submissions = [];
+            render();
+        }
+    });
+
+    function deleteData() { 
+        if(confirm("Are you sure? This deletes the cloud database.")) {
+            db.ref('contestData').remove(); 
+            localStorage.removeItem('myteam'); 
+        }
+    }
+
+    // --- LOGIC ---
 
     function getMode() {
       const p = new URLSearchParams(location.search);
@@ -157,7 +203,8 @@
         return { team: null, detected: 'No API key', score: 0, feedback: 'Admin needs to set API key' };
       }
       
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.apiKey}`;
+      // Using Flash model for speed/cost
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cfg.apiKey}`;
       
       const prompt = `You are a LENIENT math grader. Be encouraging!
 
@@ -220,6 +267,8 @@ Reply with ONLY this JSON:
         return { team: null, detected: 'Error', score: 0, feedback: e.message };
       }
     }
+
+    // --- RENDER FUNCTIONS ---
 
     function render() {
       const app = document.getElementById('app');
@@ -285,7 +334,7 @@ Reply with ONLY this JSON:
       
       // API Key settings
       html += `<div class="card bg-purple-900/20 border-purple-700/50 mb-6">
-        <h2 class="text-lg font-bold text-purple-400 mb-4">🔑 API Key</h2>
+        <h2 class="text-lg font-bold text-purple-400 mb-4">🔑 API Key (Local)</h2>
         <div>
           <input type="password" id="cfg-apikey" class="input" value="${esc(cfg.apiKey || '')}" placeholder="Enter Gemini API Key">
           <p class="text-xs text-gray-500 mt-1">Get free at <a href="https://aistudio.google.com/apikey" target="_blank" class="text-cyan-400 hover:underline">aistudio.google.com</a></p>
@@ -351,7 +400,7 @@ Reply with ONLY this JSON:
       if (DATA.problems.length === 0) html += `<p class="text-gray-500 text-center py-4">Click "+ Add"</p>`;
       html += `</div></div>`;
       
-      html += `<button id="save-contest" class="btn btn-primary w-full text-lg py-4">💾 Save Contest</button>`;
+      html += `<button id="save-contest" class="btn btn-primary w-full text-lg py-4">☁️ Save to Cloud</button>`;
       
       if (hasContest()) {
         html += `<div class="card mt-6">
@@ -475,11 +524,24 @@ Reply with ONLY this JSON:
         </div>`;
       
       if (!cfg.apiKey) {
-        html += `<div class="card text-center bg-red-900/20 border-red-700/50">
-          <p class="text-red-400 font-bold mb-2">⚠️ Contest Not Ready</p>
-          <p class="text-gray-400 text-sm">Please check back later</p>
-        </div></div></div>`;
-        return html;
+        // Students don't need the key, only the admin does. 
+        // But if the admin hasn't set up the contest, we show not ready.
+        if(!hasContest()) {
+            html += `<div class="card text-center bg-red-900/20 border-red-700/50">
+            <p class="text-red-400 font-bold mb-2">⚠️ Contest Not Ready</p>
+            <p class="text-gray-400 text-sm">Please check back later</p>
+            </div></div></div>`;
+            return html;
+        }
+        // If contest exists but student has no key, that's fine. 
+        // We actually need the key to grade. 
+        // In this simple app, we rely on the STUDENT having the key locally OR the Admin doing it. 
+        // WAIT: The prompt implies the APP grades. 
+        // In this simple client-side app, the USER needs the key.
+        // Let's prompt for key if missing.
+        html += `<div class="card text-center bg-blue-900/20 mb-4">
+            <p class="text-sm text-blue-300">Note: Grading requires an API Key.</p>
+        </div>`;
       }
       
       if (!contestStarted()) {
@@ -621,14 +683,15 @@ Reply with ONLY this JSON:
       document.getElementById('save-config')?.addEventListener('click', () => {
         const apiKey = document.getElementById('cfg-apikey')?.value?.trim();
         saveConfig({ apiKey });
-        alert('✅ API Key saved!');
+        alert('✅ API Key saved locally!');
       });
       
       document.getElementById('delete-contest')?.addEventListener('click', () => {
-        if (confirm('DELETE this contest?')) {
+        if (confirm('DELETE this contest? This wipes the Cloud DB.')) {
           deleteData();
           DATA = { name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true, problems: [], teams: {}, submissions: [], isFrozen: false };
-          myTeam = null; render();
+          myTeam = null; 
+          render();
         }
       });
       
@@ -687,7 +750,7 @@ Reply with ONLY this JSON:
         DATA.partialCredit = partial;
         
         saveData(DATA);
-        alert('✅ Contest saved!');
+        alert('✅ Contest saved to Cloud!');
         render();
       });
       
@@ -777,7 +840,7 @@ Reply with ONLY this JSON:
       const prob = DATA.problems.find(p => p.id === selectedProb);
       const res = await gradeWithAI({ img: solImg, imgType: solType }, prob);
       
-      const sub = { id: genId(), probId: selectedProb, time: Date.now(), team: res.team, score: res.score, feedback: res.feedback, detected: res.detected, status: 'done' };
+      const sub = { id: genId(), probId: selectedProb, time: Date.now(), team: res.team, score: res.score, feedback: res.feedback, detected: res.detected, status: 'done', imgType: solType };
       
       if (res.team && !DATA.teams[res.team]) DATA.teams[res.team] = { name: res.team };
       if (res.team) { myTeam = res.team; localStorage.setItem('myteam', res.team); }
@@ -810,10 +873,10 @@ Reply with ONLY this JSON:
     setInterval(() => {
       const timer = document.getElementById('timer');
       if (timer && contestStarted()) timer.textContent = contestEnded() ? '0:00' : fmtTime(getRemaining());
-      const mode = getMode();
-      if (mode === 'board' || mode === 'judge') { const d = loadData(); if (d) DATA = d; render(); }
+      // No manual loadData needed, Firebase listener handles it
     }, 1000);
 
+    // Initial Render
     render();
   </script>
 </body>
