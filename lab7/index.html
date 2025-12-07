@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hangman Game</title>
+  <style>
+    .letter-button {
+      margin: 5px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .guessed-letter {
+      margin: 5px;
+      font-size: 20px;
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      border-bottom: 2px solid black;
+    }
+    .dangle {
+      margin-top: 20px;
+      font-size: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hangman Game</h1>
+  <button id="startButton">Start Game</button>
+  <h2 id="question">Question: </h2>
+  <div id="answer"></div>
+  <div id="letters"></div>
+  <div id="dangle"></div>
+
+  <script src="hangman.js"></script>
+</body>
+</html>
