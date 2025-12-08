@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mathforces</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; color: #f1f5f9; min-height: 100vh; }
@@ -42,25 +43,15 @@
     .rank-1 { color: #ffd700; }
     .rank-2 { color: #c0c0c0; }
     .rank-3 { color: #cd7f32; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-    .status-online { background: #22c55e; }
-    .status-offline { background: #ef4444; }
   </style>
 </head>
 <body class="bg-grid">
   <div id="app"></div>
   
   <script>
-    // ============================================================
-    // CONFIGURATION - CHANGE THESE VALUES
-    // ============================================================
-    
-    // Secret URLs (change these!)
-    const ADMIN_SECRET = 'admin2025';
-    const JUDGE_SECRET = 'judge2025';
-    
-    // Firebase Config - Get from Firebase Console
-    // Go to: Firebase Console > Project Settings > General > Your apps > Web app
+    // ========================================================
+    // 🔻 PASTE YOUR FIREBASE CONFIG HERE 🔻
+    // (Go to Firebase Console -> Project Settings -> General -> "Your apps" -> SDK setup and configuration -> Config)
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
       apiKey: "AIzaSyDLcWvYoLPALFZ8qcFJzhL2ELAZy6a53Ec",
@@ -72,88 +63,63 @@
       appId: "1:793079138484:web:47f8c5e7ce0fefa0296fe1",
       measurementId: "G-JMXYJGHZG9"
     };
-    
-    // Gemini API Key (stored in localStorage, set via Admin panel)
-    
-    // ============================================================
-    // END CONFIGURATION
-    // ============================================================
-    
+    // ========================================================
+
     // Initialize Firebase
-    let db = null;
-    let firebaseReady = false;
-    
-    function initFirebase() {
-      try {
-        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-          console.warn("Firebase not configured");
-          return false;
-        }
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        firebaseReady = true;
-        console.log("Firebase connected!");
-        return true;
-      } catch(e) {
-        console.error("Firebase init error:", e);
-        return false;
-      }
+    try {
+      firebase.initializeApp(firebaseConfig);
+    } catch(e) {
+      console.error("Firebase Error: You haven't pasted the config correctly yet.");
     }
-    
-    // Data
-    const DEFAULT_DATA = {
-      name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true,
-      problems: [], teams: {}, submissions: []
-    };
-    
-    let DATA = { ...DEFAULT_DATA };
-    let myTeam = localStorage.getItem('myteam') || null;
-    let revealHistory = [];
-    let isOnline = false;
-    
-    // Firebase sync
-    function saveData() {
-      if (firebaseReady && db) {
-        db.ref('contest').set(DATA);
-      }
-    }
-    
-    function subscribeToData(callback) {
-      if (firebaseReady && db) {
-        db.ref('contest').on('value', (snapshot) => {
-          const val = snapshot.val();
-          if (val) {
-            DATA = { ...DEFAULT_DATA, ...val };
-            // Ensure arrays exist
-            if (!Array.isArray(DATA.problems)) DATA.problems = [];
-            if (!Array.isArray(DATA.submissions)) DATA.submissions = [];
-            if (!DATA.teams) DATA.teams = {};
-          }
-          isOnline = true;
-          callback();
-        }, (error) => {
-          console.error("Firebase read error:", error);
-          isOnline = false;
-          callback();
-        });
-        
-        // Connection state
-        db.ref('.info/connected').on('value', (snap) => {
-          isOnline = snap.val() === true;
-          callback();
-        });
-      } else {
-        callback();
-      }
-    }
-    
-    // Local config (API key only)
+    const db = firebase.database();
+
+    // Secrets
+    const ADMIN_SECRET = 'admin2025';
+    const JUDGE_SECRET = 'judge2025';
     const CONFIG_KEY = 'mathcontest_config';
+    
+    // Local settings (The Admin's API key stays local for security)
     function getConfig() {
       try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; } catch(e) { return {}; }
     }
     function saveConfig(cfg) { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
     
+    // --- DATABASE SYNC ---
+    let DATA = {
+      name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true,
+      problems: [], teams: {}, submissions: [], isFrozen: false
+    };
+    
+    let myTeam = localStorage.getItem('myteam') || null;
+    let revealHistory = [];
+
+    // Save entire state to Cloud
+    function saveData(data) { 
+        db.ref('contestData').set(data).catch(err => alert("Sync Error: " + err.message));
+    }
+
+    // Listen for Cloud updates
+    db.ref('contestData').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+            DATA = val;
+            // Ensure structures exist
+            if (!DATA.problems) DATA.problems = [];
+            if (!DATA.teams) DATA.teams = {};
+            if (!DATA.submissions) DATA.submissions = [];
+            render();
+        }
+    });
+
+    function deleteData() { 
+        if(confirm("Are you sure? This deletes the cloud database.")) {
+            db.ref('contestData').remove(); 
+            localStorage.removeItem('myteam'); 
+        }
+    }
+
+    // --- LOGIC ---
+
     function getMode() {
       const p = new URLSearchParams(location.search);
       if (p.get('admin') === ADMIN_SECRET) return 'admin';
@@ -187,10 +153,10 @@
       const rem = getRemaining();
       return rem > 0 && rem <= DATA.freezeTime * 60 && contestStarted();
     }
-    function hasContest() { return DATA.name && DATA.problems && DATA.problems.length > 0; }
+    function hasContest() { return DATA.name && DATA.problems.length > 0; }
     
     function getFrozenSubmissions() {
-      if (!DATA.startTime || !DATA.submissions) return [];
+      if (!DATA.startTime) return [];
       const startMs = new Date(DATA.startTime).getTime();
       const freezeAt = (DATA.duration - DATA.freezeTime) * 60 * 1000;
       return DATA.submissions
@@ -199,16 +165,15 @@
     }
     
     function getRevealedSubmissions() {
-      if (!DATA.submissions) return [];
       return DATA.submissions.filter(s => s.status === 'revealed').sort((a, b) => a.time - b.time);
     }
 
     function calcScoreboard(showHidden = false) {
-      if (!DATA.startTime || !DATA.problems || !DATA.submissions) return [];
+      if (!DATA.startTime) return [];
       const startMs = new Date(DATA.startTime).getTime();
       const freezeAt = (DATA.duration - DATA.freezeTime) * 60;
       
-      return Object.values(DATA.teams || {}).map(team => {
+      return Object.values(DATA.teams).map(team => {
         let score = 0, time = 0, results = {};
         DATA.problems.forEach(prob => {
           const subs = DATA.submissions.filter(s => s.team === team.name && s.probId === prob.id).sort((a,b) => a.time - b.time);
@@ -238,7 +203,8 @@
         return { team: null, detected: 'No API key', score: 0, feedback: 'Admin needs to set API key' };
       }
       
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.apiKey}`;
+      // Using Flash model for speed/cost
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cfg.apiKey}`;
       
       const prompt = `You are a LENIENT math grader. Be encouraging!
 
@@ -302,12 +268,7 @@ Reply with ONLY this JSON:
       }
     }
 
-    function renderStatus() {
-      if (!firebaseReady) {
-        return `<div class="text-center text-yellow-400 text-sm mb-4">⚠️ Firebase not configured - data won't sync</div>`;
-      }
-      return `<div class="text-center text-sm mb-4"><span class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></span>${isOnline ? 'Connected' : 'Offline'}</div>`;
-    }
+    // --- RENDER FUNCTIONS ---
 
     function render() {
       const app = document.getElementById('app');
@@ -324,15 +285,9 @@ Reply with ONLY this JSON:
       let html = `<div class="min-h-screen flex items-center justify-center p-6">
         <div class="max-w-md w-full text-center">
           <h1 class="font-display text-4xl text-cyan-400 mb-2">Mathforces</h1>
-          <p class="text-gray-400 mb-4">AI-Powered Competition</p>
-          ${renderStatus()}`;
+          <p class="text-gray-400 mb-8">AI-Powered Math Competition host</p>`;
       
-      if (!firebaseReady) {
-        html += `<div class="card text-left bg-yellow-900/20 border-yellow-700/50">
-          <p class="text-yellow-400 font-bold mb-2">⚠️ Setup Required</p>
-          <p class="text-gray-400 text-sm">Firebase is not configured. Admin needs to add Firebase config to the HTML file.</p>
-        </div>`;
-      } else if (hasContest()) {
+      if (hasContest()) {
         html += `<div class="card text-left mb-6">
           <h2 class="text-xl font-bold text-white mb-2">${esc(DATA.name)}</h2>
           <p class="text-gray-400 text-sm mb-3">${DATA.problems.length} problems • ${DATA.duration} min</p>`;
@@ -375,28 +330,11 @@ Reply with ONLY this JSON:
         <div class="flex justify-between items-center mb-6">
           <h1 class="font-display text-2xl text-cyan-400">⚙️ Admin</h1>
           <a href="?" class="text-gray-400 hover:text-white">← Home</a>
-        </div>
-        ${renderStatus()}`;
-      
-      if (!firebaseReady) {
-        html += `<div class="card bg-red-900/20 border-red-700/50 mb-6">
-          <h2 class="text-lg font-bold text-red-400 mb-4">🔥 Firebase Setup Required</h2>
-          <p class="text-gray-300 mb-4">To make this work online, you need to:</p>
-          <ol class="text-gray-400 text-sm space-y-2 list-decimal list-inside">
-            <li>Go to <a href="https://console.firebase.google.com" target="_blank" class="text-cyan-400 hover:underline">Firebase Console</a></li>
-            <li>Create a new project</li>
-            <li>Go to Realtime Database → Create Database</li>
-            <li>Start in <b>test mode</b> (for now)</li>
-            <li>Go to Project Settings → General → Your apps → Add web app</li>
-            <li>Copy the firebaseConfig object</li>
-            <li>Paste it in the HTML file (replace YOUR_API_KEY etc.)</li>
-          </ol>
         </div>`;
-      }
       
       // API Key settings
       html += `<div class="card bg-purple-900/20 border-purple-700/50 mb-6">
-        <h2 class="text-lg font-bold text-purple-400 mb-4">🔑 Gemini API Key</h2>
+        <h2 class="text-lg font-bold text-purple-400 mb-4">🔑 API Key (Local)</h2>
         <div>
           <input type="password" id="cfg-apikey" class="input" value="${esc(cfg.apiKey || '')}" placeholder="Enter Gemini API Key">
           <p class="text-xs text-gray-500 mt-1">Get free at <a href="https://aistudio.google.com/apikey" target="_blank" class="text-cyan-400 hover:underline">aistudio.google.com</a></p>
@@ -444,7 +382,7 @@ Reply with ONLY this JSON:
         </div>
         <div id="problems-container" class="space-y-4">`;
       
-      (DATA.problems || []).forEach((p, i) => {
+      DATA.problems.forEach((p, i) => {
         html += `<div class="p-4 rounded-lg bg-gray-800/50 border border-gray-700" data-pid="${p.id}">
           <div class="flex gap-3 items-center mb-3">
             <span class="w-8 h-8 rounded bg-blue-600 text-white flex items-center justify-center font-bold">${String.fromCharCode(65+i)}</span>
@@ -459,10 +397,10 @@ Reply with ONLY this JSON:
         </div>`;
       });
       
-      if (!DATA.problems || DATA.problems.length === 0) html += `<p class="text-gray-500 text-center py-4">Click "+ Add"</p>`;
+      if (DATA.problems.length === 0) html += `<p class="text-gray-500 text-center py-4">Click "+ Add"</p>`;
       html += `</div></div>`;
       
-      html += `<button id="save-contest" class="btn btn-primary w-full text-lg py-4">💾 Save Contest</button>`;
+      html += `<button id="save-contest" class="btn btn-primary w-full text-lg py-4">☁️ Save to Cloud</button>`;
       
       if (hasContest()) {
         html += `<div class="card mt-6">
@@ -484,10 +422,10 @@ Reply with ONLY this JSON:
           <h2 class="text-lg font-bold text-white mb-4">📈 Stats</h2>
           <div class="grid grid-cols-3 gap-4 mb-4">
             <div class="p-3 rounded bg-gray-800/50 text-center">
-              <span class="block text-2xl font-bold text-cyan-400">${Object.keys(DATA.teams || {}).length}</span>
+              <span class="block text-2xl font-bold text-cyan-400">${Object.keys(DATA.teams).length}</span>
               <span class="text-gray-400 text-sm">Teams</span></div>
             <div class="p-3 rounded bg-gray-800/50 text-center">
-              <span class="block text-2xl font-bold text-green-400">${(DATA.submissions || []).length}</span>
+              <span class="block text-2xl font-bold text-green-400">${DATA.submissions.length}</span>
               <span class="text-gray-400 text-sm">Submissions</span></div>
             <div class="p-3 rounded bg-gray-800/50 text-center">
               <span class="block text-2xl font-bold text-blue-400">${getFrozenSubmissions().length}</span>
@@ -512,14 +450,13 @@ Reply with ONLY this JSON:
             <a href="?board" target="_blank" class="btn btn-secondary text-sm">📊 Board</a>
             <a href="?" class="text-gray-400 hover:text-white">← Home</a>
           </div>
-        </div>
-        ${renderStatus()}`;
+        </div>`;
       
       html += `<div class="card mb-6">
         <div class="grid grid-cols-3 gap-4 text-center">
           <div><span class="block text-3xl font-bold text-blue-400">${frozen.length}</span><span class="text-gray-400 text-sm">Frozen</span></div>
           <div><span class="block text-3xl font-bold text-green-400">${revealed.length}</span><span class="text-gray-400 text-sm">Revealed</span></div>
-          <div><span class="block text-3xl font-bold text-cyan-400">${(DATA.submissions || []).length}</span><span class="text-gray-400 text-sm">Total</span></div>
+          <div><span class="block text-3xl font-bold text-cyan-400">${DATA.submissions.length}</span><span class="text-gray-400 text-sm">Total</span></div>
         </div>
       </div>`;
       
@@ -539,8 +476,8 @@ Reply with ONLY this JSON:
       } else {
         html += `<div class="space-y-2">`;
         frozen.forEach((sub, i) => {
-          const prob = (DATA.problems || []).find(p => p.id === sub.probId);
-          const probIdx = (DATA.problems || []).indexOf(prob);
+          const prob = DATA.problems.find(p => p.id === sub.probId);
+          const probIdx = DATA.problems.indexOf(prob);
           const scoreClass = sub.score === 100 ? 'text-green-400' : sub.score > 0 ? 'text-yellow-400' : 'text-red-400';
           html += `<div class="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-blue-700/30">
             <span class="text-blue-400 font-mono text-sm w-6">#${i+1}</span>
@@ -560,8 +497,8 @@ Reply with ONLY this JSON:
           <h2 class="text-lg font-bold text-white mb-4">✅ Revealed</h2>
           <div class="space-y-2 max-h-64 overflow-y-auto">`;
         revealed.slice().reverse().forEach(sub => {
-          const prob = (DATA.problems || []).find(p => p.id === sub.probId);
-          const probIdx = (DATA.problems || []).indexOf(prob);
+          const prob = DATA.problems.find(p => p.id === sub.probId);
+          const probIdx = DATA.problems.indexOf(prob);
           const scoreClass = sub.score === 100 ? 'text-green-400' : sub.score > 0 ? 'text-yellow-400' : 'text-red-400';
           html += `<div class="flex items-center gap-3 p-2 rounded bg-gray-800/30 opacity-70">
             <span class="w-7 h-7 rounded bg-green-600/50 text-white flex items-center justify-center font-bold text-sm">${probIdx >= 0 ? String.fromCharCode(65+probIdx) : '?'}</span>
@@ -584,15 +521,27 @@ Reply with ONLY this JSON:
         <div class="flex justify-between items-center mb-6">
           <h1 class="font-display text-xl text-cyan-400">${esc(DATA.name)}</h1>
           <a href="?" class="text-gray-400 hover:text-white">← Back</a>
-        </div>
-        ${renderStatus()}`;
+        </div>`;
       
       if (!cfg.apiKey) {
-        html += `<div class="card text-center bg-red-900/20 border-red-700/50">
-          <p class="text-red-400 font-bold mb-2">⚠️ Contest Not Ready</p>
-          <p class="text-gray-400 text-sm">Please check back later</p>
-        </div></div></div>`;
-        return html;
+        // Students don't need the key, only the admin does. 
+        // But if the admin hasn't set up the contest, we show not ready.
+        if(!hasContest()) {
+            html += `<div class="card text-center bg-red-900/20 border-red-700/50">
+            <p class="text-red-400 font-bold mb-2">⚠️ Contest Not Ready</p>
+            <p class="text-gray-400 text-sm">Please check back later</p>
+            </div></div></div>`;
+            return html;
+        }
+        // If contest exists but student has no key, that's fine. 
+        // We actually need the key to grade. 
+        // In this simple app, we rely on the STUDENT having the key locally OR the Admin doing it. 
+        // WAIT: The prompt implies the APP grades. 
+        // In this simple client-side app, the USER needs the key.
+        // Let's prompt for key if missing.
+        html += `<div class="card text-center bg-blue-900/20 mb-4">
+            <p class="text-sm text-blue-300">Note: Grading requires an API Key.</p>
+        </div>`;
       }
       
       if (!contestStarted()) {
@@ -620,7 +569,7 @@ Reply with ONLY this JSON:
             <div><span class="text-gray-400 text-sm">Team</span><span class="block text-lg font-bold text-white">${esc(myTeam)}</span></div>
             ${me ? `<span class="text-3xl font-bold text-cyan-400">${me.score}</span>` : ''}
           </div>
-          ${me ? `<div class="mt-3 flex gap-2 flex-wrap">${(DATA.problems || []).map((p,i) => {
+          ${me ? `<div class="mt-3 flex gap-2 flex-wrap">${DATA.problems.map((p,i) => {
             const r = me.results[p.id] || {status:'none',score:0};
             const cls = r.status==='pending'?'cell-pending':r.status==='correct'?'cell-correct':r.status==='partial'?'cell-partial':r.status==='wrong'?'cell-wrong':'cell-none';
             return `<div class="problem-cell ${cls}"><span class="font-bold text-white text-sm">${String.fromCharCode(65+i)}</span><span class="text-xs text-white/70">${r.score||'—'}</span></div>`;
@@ -636,8 +585,8 @@ Reply with ONLY this JSON:
         <h2 class="font-bold text-white mb-4">Submit Solution</h2>
         <div class="mb-4">
           <label class="block text-sm text-gray-400 mb-2">Select Problem</label>
-          <div class="grid grid-cols-${Math.min((DATA.problems || []).length || 1, 5)} gap-2">
-            ${(DATA.problems || []).map((p,i) => `<button class="prob-select p-3 rounded-lg border-2 border-gray-700 hover:border-cyan-500 text-center" data-id="${p.id}">
+          <div class="grid grid-cols-${Math.min(DATA.problems.length, 5)} gap-2">
+            ${DATA.problems.map((p,i) => `<button class="prob-select p-3 rounded-lg border-2 border-gray-700 hover:border-cyan-500 text-center" data-id="${p.id}">
               <span class="block text-xl font-bold text-cyan-400">${String.fromCharCode(65+i)}</span>
               <span class="block text-xs text-gray-400 truncate">${esc(p.name)}</span></button>`).join('')}
           </div>
@@ -676,10 +625,9 @@ Reply with ONLY this JSON:
             ${contestStarted() ? `<span class="font-mono text-xl text-cyan-400" id="timer">${fmtTime(getRemaining())}</span>` : ''}
             <a href="?" class="text-gray-400 hover:text-white text-sm">← Back</a>
           </div>
-        </div>
-        ${renderStatus()}`;
+        </div>`;
       
-      if (!DATA.problems || DATA.problems.length === 0) {
+      if (DATA.problems.length === 0) {
         html += `<div class="card text-center"><p class="text-gray-500">No problems</p></div>`;
       } else {
         html += `<div class="overflow-x-auto rounded-xl border border-blue-900/30 bg-gray-900/50">
@@ -735,21 +683,19 @@ Reply with ONLY this JSON:
       document.getElementById('save-config')?.addEventListener('click', () => {
         const apiKey = document.getElementById('cfg-apikey')?.value?.trim();
         saveConfig({ apiKey });
-        alert('✅ API Key saved!');
+        alert('✅ API Key saved locally!');
       });
       
       document.getElementById('delete-contest')?.addEventListener('click', () => {
-        if (confirm('DELETE this contest?')) {
-          DATA = { ...DEFAULT_DATA };
-          saveData();
-          myTeam = null;
-          localStorage.removeItem('myteam');
+        if (confirm('DELETE this contest? This wipes the Cloud DB.')) {
+          deleteData();
+          DATA = { name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true, problems: [], teams: {}, submissions: [], isFrozen: false };
+          myTeam = null; 
           render();
         }
       });
       
       document.getElementById('add-problem')?.addEventListener('click', () => {
-        if (!DATA.problems) DATA.problems = [];
         DATA.problems.push({ id: genId(), name: 'Problem ' + (DATA.problems.length + 1), points: 100, img: null, imgType: null });
         render();
       });
@@ -764,7 +710,7 @@ Reply with ONLY this JSON:
           const pid = e.target.closest('[data-pid]').dataset.pid;
           const reader = new FileReader();
           reader.onload = ev => {
-            const prob = (DATA.problems || []).find(p => p.id === pid);
+            const prob = DATA.problems.find(p => p.id === pid);
             if (prob) { prob.img = ev.target.result.split(',')[1]; prob.imgType = file.type; render(); }
           };
           reader.readAsDataURL(file);
@@ -773,7 +719,7 @@ Reply with ONLY this JSON:
       
       document.querySelectorAll('.prob-del').forEach(el => {
         el.addEventListener('click', () => {
-          DATA.problems = (DATA.problems || []).filter(p => p.id !== el.closest('[data-pid]').dataset.pid);
+          DATA.problems = DATA.problems.filter(p => p.id !== el.closest('[data-pid]').dataset.pid);
           render();
         });
       });
@@ -787,10 +733,10 @@ Reply with ONLY this JSON:
         
         if (!name) { alert('❌ Enter contest name'); return; }
         if (!start) { alert('❌ Set start time'); return; }
-        if (!DATA.problems || DATA.problems.length === 0) { alert('❌ Add at least one problem'); return; }
+        if (DATA.problems.length === 0) { alert('❌ Add at least one problem'); return; }
         
         document.querySelectorAll('[data-pid]').forEach(el => {
-          const prob = (DATA.problems || []).find(p => p.id === el.dataset.pid);
+          const prob = DATA.problems.find(p => p.id === el.dataset.pid);
           if (prob) {
             prob.name = el.querySelector('.prob-name')?.value || prob.name;
             prob.points = parseInt(el.querySelector('.prob-pts')?.value) || 100;
@@ -803,18 +749,13 @@ Reply with ONLY this JSON:
         DATA.freezeTime = freeze;
         DATA.partialCredit = partial;
         
-        saveData();
-        alert('✅ Contest saved to Firebase!');
+        saveData(DATA);
+        alert('✅ Contest saved to Cloud!');
         render();
       });
       
       document.getElementById('clear-subs')?.addEventListener('click', () => {
-        if (confirm('Clear all submissions?')) {
-          DATA.teams = {};
-          DATA.submissions = [];
-          saveData();
-          render();
-        }
+        if (confirm('Clear all submissions?')) { DATA.teams = {}; DATA.submissions = []; saveData(DATA); render(); }
       });
       
       document.querySelectorAll('.copy-btn').forEach(el => {
@@ -827,39 +768,27 @@ Reply with ONLY this JSON:
       document.getElementById('reveal-next')?.addEventListener('click', () => {
         const frozen = getFrozenSubmissions();
         if (frozen.length > 0) {
-          const sub = (DATA.submissions || []).find(s => s.id === frozen[0].id);
-          if (sub) {
-            sub.status = 'revealed';
-            revealHistory.push(sub.id);
-            saveData();
-            render();
-          }
+          frozen[0].status = 'revealed';
+          revealHistory.push(frozen[0].id);
+          saveData(DATA); render();
         }
       });
       
       document.getElementById('undo-reveal')?.addEventListener('click', () => {
         if (revealHistory.length > 0) {
           const lastId = revealHistory.pop();
-          const sub = (DATA.submissions || []).find(s => s.id === lastId);
-          if (sub) {
-            sub.status = 'done';
-            saveData();
-            render();
-          }
+          const sub = DATA.submissions.find(s => s.id === lastId);
+          if (sub) { sub.status = 'done'; saveData(DATA); render(); }
         }
       });
       
       document.getElementById('reveal-all')?.addEventListener('click', () => {
         if (confirm('Reveal ALL?')) {
-          getFrozenSubmissions().forEach(fsub => {
-            const sub = (DATA.submissions || []).find(s => s.id === fsub.id);
-            if (sub) {
-              sub.status = 'revealed';
-              revealHistory.push(sub.id);
-            }
+          getFrozenSubmissions().forEach(sub => {
+            sub.status = 'revealed';
+            revealHistory.push(sub.id);
           });
-          saveData();
-          render();
+          saveData(DATA); render();
         }
       });
       
@@ -868,7 +797,7 @@ Reply with ONLY this JSON:
           document.querySelectorAll('.prob-select').forEach(b => b.classList.remove('border-cyan-500', 'bg-cyan-900/30'));
           el.classList.add('border-cyan-500', 'bg-cyan-900/30');
           selectedProb = el.dataset.id;
-          const prob = (DATA.problems || []).find(p => p.id === selectedProb);
+          const prob = DATA.problems.find(p => p.id === selectedProb);
           const preview = document.getElementById('prob-preview'), img = document.getElementById('prob-img');
           if (prob?.img && preview && img) { img.src = `data:${prob.imgType};base64,${prob.img}`; preview.classList.remove('hidden'); }
           else preview?.classList.add('hidden');
@@ -908,19 +837,16 @@ Reply with ONLY this JSON:
       result.className = 'mt-4 p-4 rounded-lg bg-blue-900/30 text-blue-300';
       result.textContent = 'AI is reading...';
       
-      const prob = (DATA.problems || []).find(p => p.id === selectedProb);
+      const prob = DATA.problems.find(p => p.id === selectedProb);
       const res = await gradeWithAI({ img: solImg, imgType: solType }, prob);
       
-      const sub = { id: genId(), probId: selectedProb, time: Date.now(), team: res.team, score: res.score, feedback: res.feedback, detected: res.detected, status: 'done' };
-      
-      if (!DATA.teams) DATA.teams = {};
-      if (!DATA.submissions) DATA.submissions = [];
+      const sub = { id: genId(), probId: selectedProb, time: Date.now(), team: res.team, score: res.score, feedback: res.feedback, detected: res.detected, status: 'done', imgType: solType };
       
       if (res.team && !DATA.teams[res.team]) DATA.teams[res.team] = { name: res.team };
       if (res.team) { myTeam = res.team; localStorage.setItem('myteam', res.team); }
       
       DATA.submissions.push(sub);
-      saveData();
+      saveData(DATA);
       
       if (!res.team) {
         result.className = 'mt-4 p-4 rounded-lg bg-yellow-900/30 text-yellow-300';
@@ -941,17 +867,17 @@ Reply with ONLY this JSON:
       
       selectedProb = null; solImg = null; solType = null;
       btn.textContent = '📤 Submit';
+      setTimeout(render, 3000);
     }
 
-    // Timer update
     setInterval(() => {
       const timer = document.getElementById('timer');
       if (timer && contestStarted()) timer.textContent = contestEnded() ? '0:00' : fmtTime(getRemaining());
+      // No manual loadData needed, Firebase listener handles it
     }, 1000);
 
-    // Initialize
-    initFirebase();
-    subscribeToData(render);
+    // Initial Render
+    render();
   </script>
 </body>
 </html>
