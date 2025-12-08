@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mathforces</title>
+  <title>ICPC Math Contest</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -48,20 +48,17 @@
   </style>
 </head>
 <body class="bg-grid">
-  <div id="app"></div>
+  <div id="app"><div class="min-h-screen flex items-center justify-center"><p class="text-gray-400">Loading...</p></div></div>
   
   <script>
     // ============================================================
     // CONFIGURATION - CHANGE THESE VALUES
     // ============================================================
     
-    // Secret URLs (change these!)
     const ADMIN_SECRET = 'admin2025';
     const JUDGE_SECRET = 'judge2025';
     
-    // Firebase Config - Get from Firebase Console
-    // Go to: Firebase Console > Project Settings > General > Your apps > Web app
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    // Firebase Config - PASTE YOUR CONFIG HERE
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
       apiKey: "AIzaSyCn4CJt2EAQNw6k3ui2r0VFuedAACHV3Jk",
@@ -74,86 +71,66 @@
       measurementId: "G-C8BGRXFYH8"
     };
     
-    // Gemini API Key (stored in localStorage, set via Admin panel)
-    
-    // ============================================================
-    // END CONFIGURATION
     // ============================================================
     
-    // Initialize Firebase
     let db = null;
     let firebaseReady = false;
+    let isOnline = false;
+    let dataLoaded = false;
     
-    function initFirebase() {
-      try {
-        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-          console.warn("Firebase not configured");
-          return false;
-        }
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        firebaseReady = true;
-        console.log("Firebase connected!");
-        return true;
-      } catch(e) {
-        console.error("Firebase init error:", e);
-        return false;
-      }
-    }
-    
-    // Data
     const DEFAULT_DATA = {
       name: '', startTime: null, duration: 180, freezeTime: 30, partialCredit: true,
-      problems: [], teams: {}, submissions: []
+      problems: [], teams: {}, submissions: [], apiKey: ''
     };
     
     let DATA = { ...DEFAULT_DATA };
     let myTeam = localStorage.getItem('myteam') || null;
     let revealHistory = [];
-    let isOnline = false;
-    
-    // Firebase sync
-    function saveData() {
-      if (firebaseReady && db) {
-        db.ref('contest').set(DATA);
+
+    // Initialize Firebase
+    function initFirebase() {
+      if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+        console.warn("Firebase not configured");
+        dataLoaded = true;
+        render();
+        return;
       }
-    }
-    
-    function subscribeToData(callback) {
-      if (firebaseReady && db) {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        firebaseReady = true;
+        
+        // Listen for data changes
         db.ref('contest').on('value', (snapshot) => {
           const val = snapshot.val();
           if (val) {
             DATA = { ...DEFAULT_DATA, ...val };
-            // Ensure arrays exist
             if (!Array.isArray(DATA.problems)) DATA.problems = [];
             if (!Array.isArray(DATA.submissions)) DATA.submissions = [];
             if (!DATA.teams) DATA.teams = {};
           }
-          isOnline = true;
-          callback();
-        }, (error) => {
-          console.error("Firebase read error:", error);
-          isOnline = false;
-          callback();
+          dataLoaded = true;
+          render();
         });
         
         // Connection state
         db.ref('.info/connected').on('value', (snap) => {
           isOnline = snap.val() === true;
-          callback();
+          if (dataLoaded) render();
         });
-      } else {
-        callback();
+        
+      } catch(e) {
+        console.error("Firebase error:", e);
+        dataLoaded = true;
+        render();
       }
     }
     
-    // Local config (API key only)
-    const CONFIG_KEY = 'mathcontest_config';
-    function getConfig() {
-      try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; } catch(e) { return {}; }
+    function saveData() {
+      if (firebaseReady && db) {
+        db.ref('contest').set(DATA);
+      }
     }
-    function saveConfig(cfg) { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
     
     function getMode() {
       const p = new URLSearchParams(location.search);
@@ -189,14 +166,13 @@
       return rem > 0 && rem <= DATA.freezeTime * 60 && contestStarted();
     }
     function hasContest() { return DATA.name && DATA.problems && DATA.problems.length > 0; }
+    function hasApiKey() { return DATA.apiKey && DATA.apiKey.length > 10; }
     
     function getFrozenSubmissions() {
       if (!DATA.startTime || !DATA.submissions) return [];
       const startMs = new Date(DATA.startTime).getTime();
       const freezeAt = (DATA.duration - DATA.freezeTime) * 60 * 1000;
-      return DATA.submissions
-        .filter(s => (s.time - startMs) >= freezeAt && s.status === 'done')
-        .sort((a, b) => a.time - b.time);
+      return DATA.submissions.filter(s => (s.time - startMs) >= freezeAt && s.status === 'done').sort((a, b) => a.time - b.time);
     }
     
     function getRevealedSubmissions() {
@@ -234,18 +210,16 @@
     }
 
     async function gradeWithAI(sub, prob) {
-      const cfg = getConfig();
-      if (!cfg.apiKey) {
-        return { team: null, detected: 'No API key', score: 0, feedback: 'Admin needs to set API key' };
+      if (!hasApiKey()) {
+        return { team: null, detected: 'No API key', score: 0, feedback: 'API key not configured' };
       }
       
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${DATA.apiKey}`;
       
       const prompt = `You are a LENIENT math grader. Be encouraging!
 
 TASK 1 - Find team name:
 Look for "team:" or "Team:" on the paper. Return whatever comes after it.
-Examples: "Team: alpha" → "alpha", "team:E13" → "E13"
 
 TASK 2 - Read the student's work:
 Transcribe what you see written.
@@ -274,13 +248,11 @@ Reply with ONLY this JSON:
         });
         
         if (!res.ok) throw new Error(`API ${res.status}`);
-        
         const json = await res.json();
         if (json.error) throw new Error(json.error.message);
         
         let text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if (!text) throw new Error('Empty response');
-        
         text = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
         
         let parsed;
@@ -304,13 +276,12 @@ Reply with ONLY this JSON:
     }
 
     function renderStatus() {
-      if (!firebaseReady) {
-        return `<div class="text-center text-yellow-400 text-sm mb-4">⚠️ Firebase not configured - data won't sync</div>`;
-      }
-      return `<div class="text-center text-sm mb-4"><span class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></span>${isOnline ? 'Connected' : 'Offline'}</div>`;
+      if (!firebaseReady) return `<div class="text-yellow-400 text-sm mb-4 text-center">⚠️ Firebase not configured</div>`;
+      return `<div class="text-sm mb-4 text-center"><span class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></span>${isOnline ? 'Connected' : 'Connecting...'}</div>`;
     }
 
     function render() {
+      if (!dataLoaded) return;
       const app = document.getElementById('app');
       const mode = getMode();
       if (mode === 'admin') app.innerHTML = renderAdmin();
@@ -324,14 +295,14 @@ Reply with ONLY this JSON:
     function renderHome() {
       let html = `<div class="min-h-screen flex items-center justify-center p-6">
         <div class="max-w-md w-full text-center">
-          <h1 class="font-display text-4xl text-cyan-400 mb-2">Mathforces</h1>
+          <h1 class="font-display text-4xl text-cyan-400 mb-2">ICPC Math</h1>
           <p class="text-gray-400 mb-4">AI-Powered Competition</p>
           ${renderStatus()}`;
       
       if (!firebaseReady) {
-        html += `<div class="card text-left bg-yellow-900/20 border-yellow-700/50">
+        html += `<div class="card bg-yellow-900/20 border-yellow-700/50">
           <p class="text-yellow-400 font-bold mb-2">⚠️ Setup Required</p>
-          <p class="text-gray-400 text-sm">Firebase is not configured. Admin needs to add Firebase config to the HTML file.</p>
+          <p class="text-gray-400 text-sm">Firebase config needed in HTML file</p>
         </div>`;
       } else if (hasContest()) {
         html += `<div class="card text-left mb-6">
@@ -345,32 +316,24 @@ Reply with ONLY this JSON:
             <span class="font-bold">🟢 Running</span><br>
             <span class="font-mono text-xl" id="timer">${fmtTime(getRemaining())}</span>
           </div>`;
-        } else if (DATA.startTime) {
+        } else {
           html += `<div class="p-3 rounded-lg bg-yellow-900/30 text-yellow-400 text-center">
             <span class="font-bold">⏳ Starts</span><br>
             <span class="text-white">${new Date(DATA.startTime).toLocaleString()}</span>
           </div>`;
         }
-        html += `</div>`;
-        
-        html += `<div class="space-y-3">`;
-        if (!contestEnded()) {
-          html += `<a href="?submit" class="btn btn-primary btn-large block w-full">🚀 Enter Contest</a>`;
-        }
-        html += `<a href="?board" class="btn btn-secondary block w-full">📊 Scoreboard</a>`;
-        html += `</div>`;
+        html += `</div><div class="space-y-3">`;
+        if (!contestEnded()) html += `<a href="?submit" class="btn btn-primary btn-large block w-full">🚀 Enter Contest</a>`;
+        html += `<a href="?board" class="btn btn-secondary block w-full">📊 Scoreboard</a></div>`;
       } else {
-        html += `<p class="text-gray-500 mb-4">No contest scheduled</p>
-          <p class="text-gray-600 text-sm">Check back later!</p>`;
+        html += `<p class="text-gray-500 mb-4">No contest scheduled</p><p class="text-gray-600 text-sm">Check back later!</p>`;
       }
       
-      html += `</div></div>`;
-      return html;
+      return html + `</div></div>`;
     }
 
     function renderAdmin() {
       const base = location.origin + location.pathname;
-      const cfg = getConfig();
       
       let html = `<div class="min-h-screen p-4 sm:p-6"><div class="max-w-2xl mx-auto">
         <div class="flex justify-between items-center mb-6">
@@ -382,27 +345,21 @@ Reply with ONLY this JSON:
       if (!firebaseReady) {
         html += `<div class="card bg-red-900/20 border-red-700/50 mb-6">
           <h2 class="text-lg font-bold text-red-400 mb-4">🔥 Firebase Setup Required</h2>
-          <p class="text-gray-300 mb-4">To make this work online, you need to:</p>
           <ol class="text-gray-400 text-sm space-y-2 list-decimal list-inside">
             <li>Go to <a href="https://console.firebase.google.com" target="_blank" class="text-cyan-400 hover:underline">Firebase Console</a></li>
-            <li>Create a new project</li>
-            <li>Go to Realtime Database → Create Database</li>
-            <li>Start in <b>test mode</b> (for now)</li>
-            <li>Go to Project Settings → General → Your apps → Add web app</li>
-            <li>Copy the firebaseConfig object</li>
-            <li>Paste it in the HTML file (replace YOUR_API_KEY etc.)</li>
+            <li>Create project → Realtime Database → Create (test mode)</li>
+            <li>Project Settings → Your apps → Add web app</li>
+            <li>Copy firebaseConfig → Paste in HTML file</li>
           </ol>
         </div>`;
       }
       
-      // API Key settings
+      // API Key (stored in Firebase)
       html += `<div class="card bg-purple-900/20 border-purple-700/50 mb-6">
         <h2 class="text-lg font-bold text-purple-400 mb-4">🔑 Gemini API Key</h2>
-        <div>
-          <input type="password" id="cfg-apikey" class="input" value="${esc(cfg.apiKey || '')}" placeholder="Enter Gemini API Key">
-          <p class="text-xs text-gray-500 mt-1">Get free at <a href="https://aistudio.google.com/apikey" target="_blank" class="text-cyan-400 hover:underline">aistudio.google.com</a></p>
-        </div>
-        <button id="save-config" class="btn btn-secondary w-full mt-3">💾 Save API Key</button>
+        <input type="password" id="cfg-apikey" class="input" value="${esc(DATA.apiKey || '')}" placeholder="Enter Gemini API Key">
+        <p class="text-xs text-gray-500 mt-1">Get free at <a href="https://aistudio.google.com/apikey" target="_blank" class="text-cyan-400 hover:underline">aistudio.google.com</a></p>
+        <button id="save-apikey" class="btn btn-secondary w-full mt-3">💾 Save API Key</button>
       </div>`;
       
       if (hasContest()) {
@@ -418,10 +375,10 @@ Reply with ONLY this JSON:
       html += `<div class="card">
         <h2 class="text-lg font-bold text-white mb-4">${hasContest() ? 'Edit' : 'Create'} Contest</h2>
         <div class="space-y-4">
-          <div><label class="block text-sm text-gray-400 mb-1">Contest Name *</label>
+          <div><label class="block text-sm text-gray-400 mb-1">Contest Name</label>
             <input type="text" id="f-name" class="input" value="${esc(DATA.name)}" placeholder="Math Olympiad"></div>
           <div class="grid grid-cols-2 gap-4">
-            <div><label class="block text-sm text-gray-400 mb-1">Start Time *</label>
+            <div><label class="block text-sm text-gray-400 mb-1">Start Time</label>
               <input type="datetime-local" id="f-start" class="input" value="${DATA.startTime ? new Date(DATA.startTime).toISOString().slice(0,16) : ''}"></div>
             <div><label class="block text-sm text-gray-400 mb-1">Duration (min)</label>
               <input type="number" id="f-duration" class="input" value="${DATA.duration}"></div>
@@ -460,7 +417,7 @@ Reply with ONLY this JSON:
         </div>`;
       });
       
-      if (!DATA.problems || DATA.problems.length === 0) html += `<p class="text-gray-500 text-center py-4">Click "+ Add"</p>`;
+      if (!DATA.problems?.length) html += `<p class="text-gray-500 text-center py-4">Click "+ Add"</p>`;
       html += `</div></div>`;
       
       html += `<button id="save-contest" class="btn btn-primary w-full text-lg py-4">💾 Save Contest</button>`;
@@ -472,9 +429,6 @@ Reply with ONLY this JSON:
             <div><label class="block text-sm text-gray-400 mb-1">🏠 Home</label>
               <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm" value="${base}">
                 <button class="btn btn-secondary copy-btn" data-url="${base}">📋</button></div></div>
-            <div><label class="block text-sm text-gray-400 mb-1">📊 Scoreboard</label>
-              <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm" value="${base}?board">
-                <button class="btn btn-secondary copy-btn" data-url="${base}?board">📋</button></div></div>
             <div><label class="block text-sm text-gray-400 mb-1">⚖️ Judge Panel</label>
               <div class="flex gap-2"><input type="text" readonly class="input flex-1 text-sm bg-yellow-900/20" value="${base}?judge=${JUDGE_SECRET}">
                 <button class="btn btn-secondary copy-btn" data-url="${base}?judge=${JUDGE_SECRET}">📋</button></div></div>
@@ -498,8 +452,7 @@ Reply with ONLY this JSON:
         </div>`;
       }
       
-      html += `</div></div>`;
-      return html;
+      return html + `</div></div>`;
     }
 
     function renderJudge() {
@@ -532,9 +485,7 @@ Reply with ONLY this JSON:
         </div>
       </div>`;
       
-      html += `<div class="card">
-        <h2 class="text-lg font-bold text-white mb-4">❄️ Frozen Queue</h2>`;
-      
+      html += `<div class="card"><h2 class="text-lg font-bold text-white mb-4">❄️ Frozen Queue</h2>`;
       if (frozen.length === 0) {
         html += `<p class="text-gray-500 text-center py-4">No frozen submissions</p>`;
       } else {
@@ -557,8 +508,7 @@ Reply with ONLY this JSON:
       html += `</div>`;
       
       if (revealed.length > 0) {
-        html += `<div class="card">
-          <h2 class="text-lg font-bold text-white mb-4">✅ Revealed</h2>
+        html += `<div class="card"><h2 class="text-lg font-bold text-white mb-4">✅ Revealed</h2>
           <div class="space-y-2 max-h-64 overflow-y-auto">`;
         revealed.slice().reverse().forEach(sub => {
           const prob = (DATA.problems || []).find(p => p.id === sub.probId);
@@ -574,24 +524,26 @@ Reply with ONLY this JSON:
         html += `</div></div>`;
       }
       
-      html += `</div></div>`;
-      return html;
+      return html + `</div></div>`;
     }
 
     function renderSubmit() {
-      const cfg = getConfig();
-      
       let html = `<div class="min-h-screen p-4"><div class="max-w-lg mx-auto">
         <div class="flex justify-between items-center mb-6">
-          <h1 class="font-display text-xl text-cyan-400">${esc(DATA.name)}</h1>
+          <h1 class="font-display text-xl text-cyan-400">${esc(DATA.name || 'Contest')}</h1>
           <a href="?" class="text-gray-400 hover:text-white">← Back</a>
         </div>
         ${renderStatus()}`;
       
-      if (!cfg.apiKey) {
-        html += `<div class="card text-center bg-red-900/20 border-red-700/50">
-          <p class="text-red-400 font-bold mb-2">⚠️ Contest Not Ready</p>
-          <p class="text-gray-400 text-sm">Please check back later</p>
+      if (!hasContest()) {
+        html += `<div class="card text-center"><p class="text-gray-400">No contest available</p></div></div></div>`;
+        return html;
+      }
+      
+      if (!hasApiKey()) {
+        html += `<div class="card text-center bg-yellow-900/20 border-yellow-700/50">
+          <p class="text-yellow-400 font-bold mb-2">⏳ Contest Starting Soon</p>
+          <p class="text-gray-400 text-sm">Please wait for the admin to finish setup</p>
         </div></div></div>`;
         return html;
       }
@@ -621,7 +573,7 @@ Reply with ONLY this JSON:
             <div><span class="text-gray-400 text-sm">Team</span><span class="block text-lg font-bold text-white">${esc(myTeam)}</span></div>
             ${me ? `<span class="text-3xl font-bold text-cyan-400">${me.score}</span>` : ''}
           </div>
-          ${me ? `<div class="mt-3 flex gap-2 flex-wrap">${(DATA.problems || []).map((p,i) => {
+          ${me ? `<div class="mt-3 flex gap-2 flex-wrap">${DATA.problems.map((p,i) => {
             const r = me.results[p.id] || {status:'none',score:0};
             const cls = r.status==='pending'?'cell-pending':r.status==='correct'?'cell-correct':r.status==='partial'?'cell-partial':r.status==='wrong'?'cell-wrong':'cell-none';
             return `<div class="problem-cell ${cls}"><span class="font-bold text-white text-sm">${String.fromCharCode(65+i)}</span><span class="text-xs text-white/70">${r.score||'—'}</span></div>`;
@@ -637,8 +589,8 @@ Reply with ONLY this JSON:
         <h2 class="font-bold text-white mb-4">Submit Solution</h2>
         <div class="mb-4">
           <label class="block text-sm text-gray-400 mb-2">Select Problem</label>
-          <div class="grid grid-cols-${Math.min((DATA.problems || []).length || 1, 5)} gap-2">
-            ${(DATA.problems || []).map((p,i) => `<button class="prob-select p-3 rounded-lg border-2 border-gray-700 hover:border-cyan-500 text-center" data-id="${p.id}">
+          <div class="grid grid-cols-${Math.min(DATA.problems.length, 5)} gap-2">
+            ${DATA.problems.map((p,i) => `<button class="prob-select p-3 rounded-lg border-2 border-gray-700 hover:border-cyan-500 text-center" data-id="${p.id}">
               <span class="block text-xl font-bold text-cyan-400">${String.fromCharCode(65+i)}</span>
               <span class="block text-xs text-gray-400 truncate">${esc(p.name)}</span></button>`).join('')}
           </div>
@@ -669,82 +621,78 @@ Reply with ONLY this JSON:
       let html = `<div class="min-h-screen p-4">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
           <div class="flex items-center gap-3">
-            <h1 class="font-display text-xl sm:text-2xl text-cyan-400">${esc(DATA.name)}</h1>
+            <h1 class="font-display text-xl sm:text-2xl text-cyan-400">${esc(DATA.name || 'Scoreboard')}</h1>
             ${contestEnded() ? '<span class="px-2 py-1 rounded bg-red-900/50 text-red-400 text-xs">ENDED</span>' : ''}
             ${frozenCount > 0 ? `<span class="px-2 py-1 rounded bg-blue-900/50 text-blue-400 text-xs">❄️ ${frozenCount}</span>` : ''}
           </div>
           <div class="flex items-center gap-3">
-            ${contestStarted() ? `<span class="font-mono text-xl text-cyan-400" id="timer">${fmtTime(getRemaining())}</span>` : ''}
+            ${contestStarted() && !contestEnded() ? `<span class="font-mono text-xl text-cyan-400" id="timer">${fmtTime(getRemaining())}</span>` : ''}
             <a href="?" class="text-gray-400 hover:text-white text-sm">← Back</a>
           </div>
         </div>
         ${renderStatus()}`;
       
-      if (!DATA.problems || DATA.problems.length === 0) {
-        html += `<div class="card text-center"><p class="text-gray-500">No problems</p></div>`;
-      } else {
-        html += `<div class="overflow-x-auto rounded-xl border border-blue-900/30 bg-gray-900/50">
-          <table class="w-full min-w-max"><thead>
-            <tr class="text-xs text-gray-400 uppercase border-b border-gray-800">
-              <th class="px-3 py-3 text-left w-12">#</th>
-              <th class="px-3 py-3 text-left">Team</th>
-              ${DATA.problems.map((p,i) => `<th class="px-2 py-3 text-center w-16">${String.fromCharCode(65+i)}</th>`).join('')}
-              <th class="px-3 py-3 text-center w-20">Score</th>
-              <th class="px-3 py-3 text-center w-24">Time</th>
-            </tr>
-          </thead><tbody>`;
-        
-        if (board.length === 0) {
-          html += `<tr><td colspan="${DATA.problems.length + 4}" class="text-center py-8 text-gray-500">No teams yet</td></tr>`;
-        } else {
-          board.forEach((t, i) => {
-            html += `<tr class="border-b border-gray-800/50">
-              <td class="px-3 py-2 font-display font-bold ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'text-gray-400'}">${i<3?['🥇','🥈','🥉'][i]:'#'+(i+1)}</td>
-              <td class="px-3 py-2 text-white font-medium">${esc(t.name)}</td>`;
-            
-            DATA.problems.forEach(p => {
-              const r = t.results[p.id] || { status: 'none', score: 0 };
-              const cls = r.status === 'pending' ? 'cell-pending' : r.status === 'frozen' ? 'cell-frozen' : r.status === 'correct' ? 'cell-correct' : r.status === 'partial' ? 'cell-partial' : r.status === 'wrong' ? 'cell-wrong' : 'cell-none';
-              html += `<td class="px-2 py-2 text-center"><div class="problem-cell ${cls} mx-auto">
-                <span class="font-mono text-xs font-bold text-white">${r.status === 'frozen' ? '?' : r.status !== 'none' ? r.score : '—'}</span>
-                ${r.frozen > 0 ? `<span class="text-xs text-blue-300">+${r.frozen}</span>` : ''}
-              </div></td>`;
-            });
-            
-            html += `<td class="px-3 py-2 text-center font-mono font-bold text-xl text-cyan-400">${t.score}</td>
-              <td class="px-3 py-2 text-center font-mono text-gray-400 text-sm">${fmtTime(t.time)}</td></tr>`;
-          });
-        }
-        
-        html += `</tbody></table></div>`;
-        
-        html += `<div class="mt-4 flex justify-center gap-4 flex-wrap text-xs">
-          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-correct"></div><span class="text-gray-400">100</span></div>
-          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-partial"></div><span class="text-gray-400">Partial</span></div>
-          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-wrong"></div><span class="text-gray-400">0</span></div>
-          <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-frozen"></div><span class="text-gray-400">Frozen</span></div>
-        </div>`;
+      if (!DATA.problems?.length) {
+        html += `<div class="card text-center"><p class="text-gray-500">No contest data</p></div></div>`;
+        return html;
       }
       
-      html += `</div>`;
+      html += `<div class="overflow-x-auto rounded-xl border border-blue-900/30 bg-gray-900/50">
+        <table class="w-full min-w-max"><thead>
+          <tr class="text-xs text-gray-400 uppercase border-b border-gray-800">
+            <th class="px-3 py-3 text-left w-12">#</th>
+            <th class="px-3 py-3 text-left">Team</th>
+            ${DATA.problems.map((p,i) => `<th class="px-2 py-3 text-center w-16">${String.fromCharCode(65+i)}</th>`).join('')}
+            <th class="px-3 py-3 text-center w-20">Score</th>
+            <th class="px-3 py-3 text-center w-24">Time</th>
+          </tr>
+        </thead><tbody>`;
+      
+      if (board.length === 0) {
+        html += `<tr><td colspan="${DATA.problems.length + 4}" class="text-center py-8 text-gray-500">No teams yet</td></tr>`;
+      } else {
+        board.forEach((t, i) => {
+          html += `<tr class="border-b border-gray-800/50">
+            <td class="px-3 py-2 font-display font-bold ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'text-gray-400'}">${i<3?['🥇','🥈','🥉'][i]:'#'+(i+1)}</td>
+            <td class="px-3 py-2 text-white font-medium">${esc(t.name)}</td>`;
+          
+          DATA.problems.forEach(p => {
+            const r = t.results[p.id] || { status: 'none', score: 0 };
+            const cls = r.status === 'pending' ? 'cell-pending' : r.status === 'frozen' ? 'cell-frozen' : r.status === 'correct' ? 'cell-correct' : r.status === 'partial' ? 'cell-partial' : r.status === 'wrong' ? 'cell-wrong' : 'cell-none';
+            html += `<td class="px-2 py-2 text-center"><div class="problem-cell ${cls} mx-auto">
+              <span class="font-mono text-xs font-bold text-white">${r.status === 'frozen' ? '?' : r.status !== 'none' ? r.score : '—'}</span>
+              ${r.frozen > 0 ? `<span class="text-xs text-blue-300">+${r.frozen}</span>` : ''}
+            </div></td>`;
+          });
+          
+          html += `<td class="px-3 py-2 text-center font-mono font-bold text-xl text-cyan-400">${t.score}</td>
+            <td class="px-3 py-2 text-center font-mono text-gray-400 text-sm">${fmtTime(t.time)}</td></tr>`;
+        });
+      }
+      
+      html += `</tbody></table></div>`;
+      html += `<div class="mt-4 flex justify-center gap-4 flex-wrap text-xs">
+        <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-correct"></div><span class="text-gray-400">100</span></div>
+        <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-partial"></div><span class="text-gray-400">Partial</span></div>
+        <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-wrong"></div><span class="text-gray-400">0</span></div>
+        <div class="flex items-center gap-1"><div class="w-4 h-4 rounded cell-frozen"></div><span class="text-gray-400">Frozen</span></div>
+      </div></div>`;
       return html;
     }
 
     let selectedProb = null, solImg = null, solType = null;
 
     function bindEvents() {
-      document.getElementById('save-config')?.addEventListener('click', () => {
-        const apiKey = document.getElementById('cfg-apikey')?.value?.trim();
-        saveConfig({ apiKey });
+      document.getElementById('save-apikey')?.addEventListener('click', () => {
+        DATA.apiKey = document.getElementById('cfg-apikey')?.value?.trim() || '';
+        saveData();
         alert('✅ API Key saved!');
       });
       
       document.getElementById('delete-contest')?.addEventListener('click', () => {
-        if (confirm('DELETE this contest?')) {
-          DATA = { ...DEFAULT_DATA };
+        if (confirm('DELETE contest?')) {
+          DATA = { ...DEFAULT_DATA, apiKey: DATA.apiKey };
           saveData();
-          myTeam = null;
-          localStorage.removeItem('myteam');
           render();
         }
       });
@@ -765,7 +713,7 @@ Reply with ONLY this JSON:
           const pid = e.target.closest('[data-pid]').dataset.pid;
           const reader = new FileReader();
           reader.onload = ev => {
-            const prob = (DATA.problems || []).find(p => p.id === pid);
+            const prob = DATA.problems.find(p => p.id === pid);
             if (prob) { prob.img = ev.target.result.split(',')[1]; prob.imgType = file.type; render(); }
           };
           reader.readAsDataURL(file);
@@ -774,7 +722,7 @@ Reply with ONLY this JSON:
       
       document.querySelectorAll('.prob-del').forEach(el => {
         el.addEventListener('click', () => {
-          DATA.problems = (DATA.problems || []).filter(p => p.id !== el.closest('[data-pid]').dataset.pid);
+          DATA.problems = DATA.problems.filter(p => p.id !== el.closest('[data-pid]').dataset.pid);
           render();
         });
       });
@@ -782,16 +730,12 @@ Reply with ONLY this JSON:
       document.getElementById('save-contest')?.addEventListener('click', () => {
         const name = document.getElementById('f-name')?.value?.trim();
         const start = document.getElementById('f-start')?.value;
-        const duration = parseInt(document.getElementById('f-duration')?.value) || 180;
-        const freeze = parseInt(document.getElementById('f-freeze')?.value) || 30;
-        const partial = document.getElementById('f-partial')?.checked ?? true;
-        
         if (!name) { alert('❌ Enter contest name'); return; }
         if (!start) { alert('❌ Set start time'); return; }
-        if (!DATA.problems || DATA.problems.length === 0) { alert('❌ Add at least one problem'); return; }
+        if (!DATA.problems?.length) { alert('❌ Add problems'); return; }
         
         document.querySelectorAll('[data-pid]').forEach(el => {
-          const prob = (DATA.problems || []).find(p => p.id === el.dataset.pid);
+          const prob = DATA.problems.find(p => p.id === el.dataset.pid);
           if (prob) {
             prob.name = el.querySelector('.prob-name')?.value || prob.name;
             prob.points = parseInt(el.querySelector('.prob-pts')?.value) || 100;
@@ -800,13 +744,12 @@ Reply with ONLY this JSON:
         
         DATA.name = name;
         DATA.startTime = new Date(start).toISOString();
-        DATA.duration = duration;
-        DATA.freezeTime = freeze;
-        DATA.partialCredit = partial;
+        DATA.duration = parseInt(document.getElementById('f-duration')?.value) || 180;
+        DATA.freezeTime = parseInt(document.getElementById('f-freeze')?.value) || 30;
+        DATA.partialCredit = document.getElementById('f-partial')?.checked ?? true;
         
         saveData();
-        alert('✅ Contest saved to Firebase!');
-        render();
+        alert('✅ Contest saved!');
       });
       
       document.getElementById('clear-subs')?.addEventListener('click', () => {
@@ -814,7 +757,6 @@ Reply with ONLY this JSON:
           DATA.teams = {};
           DATA.submissions = [];
           saveData();
-          render();
         }
       });
       
@@ -828,39 +770,25 @@ Reply with ONLY this JSON:
       document.getElementById('reveal-next')?.addEventListener('click', () => {
         const frozen = getFrozenSubmissions();
         if (frozen.length > 0) {
-          const sub = (DATA.submissions || []).find(s => s.id === frozen[0].id);
-          if (sub) {
-            sub.status = 'revealed';
-            revealHistory.push(sub.id);
-            saveData();
-            render();
-          }
+          const sub = DATA.submissions.find(s => s.id === frozen[0].id);
+          if (sub) { sub.status = 'revealed'; revealHistory.push(sub.id); saveData(); }
         }
       });
       
       document.getElementById('undo-reveal')?.addEventListener('click', () => {
         if (revealHistory.length > 0) {
-          const lastId = revealHistory.pop();
-          const sub = (DATA.submissions || []).find(s => s.id === lastId);
-          if (sub) {
-            sub.status = 'done';
-            saveData();
-            render();
-          }
+          const sub = DATA.submissions.find(s => s.id === revealHistory.pop());
+          if (sub) { sub.status = 'done'; saveData(); }
         }
       });
       
       document.getElementById('reveal-all')?.addEventListener('click', () => {
         if (confirm('Reveal ALL?')) {
-          getFrozenSubmissions().forEach(fsub => {
-            const sub = (DATA.submissions || []).find(s => s.id === fsub.id);
-            if (sub) {
-              sub.status = 'revealed';
-              revealHistory.push(sub.id);
-            }
+          getFrozenSubmissions().forEach(f => {
+            const sub = DATA.submissions.find(s => s.id === f.id);
+            if (sub) { sub.status = 'revealed'; revealHistory.push(sub.id); }
           });
           saveData();
-          render();
         }
       });
       
@@ -869,9 +797,9 @@ Reply with ONLY this JSON:
           document.querySelectorAll('.prob-select').forEach(b => b.classList.remove('border-cyan-500', 'bg-cyan-900/30'));
           el.classList.add('border-cyan-500', 'bg-cyan-900/30');
           selectedProb = el.dataset.id;
-          const prob = (DATA.problems || []).find(p => p.id === selectedProb);
+          const prob = DATA.problems.find(p => p.id === selectedProb);
           const preview = document.getElementById('prob-preview'), img = document.getElementById('prob-img');
-          if (prob?.img && preview && img) { img.src = `data:${prob.imgType};base64,${prob.img}`; preview.classList.remove('hidden'); }
+          if (prob?.img) { img.src = `data:${prob.imgType};base64,${prob.img}`; preview.classList.remove('hidden'); }
           else preview?.classList.add('hidden');
           updateBtn();
         });
@@ -909,10 +837,8 @@ Reply with ONLY this JSON:
       result.className = 'mt-4 p-4 rounded-lg bg-blue-900/30 text-blue-300';
       result.textContent = 'AI is reading...';
       
-      const prob = (DATA.problems || []).find(p => p.id === selectedProb);
+      const prob = DATA.problems.find(p => p.id === selectedProb);
       const res = await gradeWithAI({ img: solImg, imgType: solType }, prob);
-      
-      const sub = { id: genId(), probId: selectedProb, time: Date.now(), team: res.team, score: res.score, feedback: res.feedback, detected: res.detected, status: 'done' };
       
       if (!DATA.teams) DATA.teams = {};
       if (!DATA.submissions) DATA.submissions = [];
@@ -920,39 +846,31 @@ Reply with ONLY this JSON:
       if (res.team && !DATA.teams[res.team]) DATA.teams[res.team] = { name: res.team };
       if (res.team) { myTeam = res.team; localStorage.setItem('myteam', res.team); }
       
-      DATA.submissions.push(sub);
+      DATA.submissions.push({ id: genId(), probId: selectedProb, time: Date.now(), team: res.team, score: res.score, feedback: res.feedback, status: 'done' });
       saveData();
       
       if (!res.team) {
         result.className = 'mt-4 p-4 rounded-lg bg-yellow-900/30 text-yellow-300';
-        result.innerHTML = `<p class="font-bold">⚠️ Team not detected</p>
-          <p class="text-sm mt-2"><b>AI read:</b> "${esc(res.detected)}"</p>
-          <p class="text-sm mt-1"><b>Score:</b> ${res.score}/100</p>
-          <p class="text-xs mt-2">${esc(res.feedback)}</p>`;
+        result.innerHTML = `<p class="font-bold">⚠️ Team not detected</p><p class="text-sm mt-1">${esc(res.feedback)}</p>`;
       } else {
         const cls = res.score === 100 ? 'bg-green-900/30 text-green-300' : res.score > 0 ? 'bg-yellow-900/30 text-yellow-300' : 'bg-red-900/30 text-red-300';
         result.className = `mt-4 p-4 rounded-lg ${cls}`;
         result.innerHTML = `<div class="flex justify-between items-center">
           <span class="font-bold">Team: ${esc(res.team)}</span>
           <span class="text-2xl font-bold">${res.score}/100</span>
-        </div>
-        <p class="text-sm mt-2"><b>AI read:</b> "${esc(res.detected)}"</p>
-        <p class="text-sm mt-1">${esc(res.feedback)}</p>`;
+        </div><p class="text-sm mt-1">${esc(res.feedback)}</p>`;
       }
       
       selectedProb = null; solImg = null; solType = null;
       btn.textContent = '📤 Submit';
     }
 
-    // Timer update
     setInterval(() => {
       const timer = document.getElementById('timer');
       if (timer && contestStarted()) timer.textContent = contestEnded() ? '0:00' : fmtTime(getRemaining());
     }, 1000);
 
-    // Initialize
     initFirebase();
-    subscribeToData(render);
   </script>
 </body>
 </html>
