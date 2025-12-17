@@ -1,40 +1,328 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hangman Game</title>
-  <style>
-    .letter-button {
-      margin: 5px;
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .guessed-letter {
-      margin: 5px;
-      font-size: 20px;
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      text-align: center;
-      line-height: 30px;
-      border-bottom: 2px solid black;
-    }
-    .dangle {
-      margin-top: 20px;
-      font-size: 40px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Монгол Hangman</title>
+    <style>
+        *{ 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        body{
+            font-family: Arial, sans-serif;
+            color: white;
+            min-height: 100vh;
+            background: url('bg.png') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container{
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+        }
+        h1{ 
+            color: #0b58fe; 
+            margin-bottom: 20px; 
+        }
+        .btn{
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn-start{ 
+            background: #0e15a3; 
+            color: white; 
+        }
+        .btn-rules{ 
+            background: transparent; 
+            color: #1725be; 
+            border: 2px solid #1329d1; 
+            font: bold; 
+        }
+        .modal{
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.1);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content{
+            background: rgba(0, 0, 0, 0.9);
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: left;
+        }
+        .modal-content h2{ 
+            color: #0c13cc; 
+            margin-bottom: 15px; 
+        }
+        .modal-content ul{ 
+            padding-left: 20px; 
+            line-height: 1.8; 
+            margin-bottom: 20px; 
+        }
+        .hidden{ 
+            display: none; 
+        }
+        .category-btn{
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .category-btn:hover{ 
+            border-color: #0733e4; 
+            background: rgba(33, 19, 231, 0.2); 
+        }
+        .question{ 
+            background: rgba(33, 22, 244, 0.3); 
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+        }
+        .hangman-img{ 
+            width: 150px; 
+            height: 150px; 
+            margin: 20px auto; 
+        }
+        .hangman-img img{ 
+            max-width: 100%; 
+            max-height: 100%; 
+        }
+        .word-display{ 
+            font-size: 2rem; 
+            letter-spacing: 10px; 
+            margin: 20px 0; 
+        }
+        .letter{ 
+            display: inline-block; 
+            width: 30px; 
+            border-bottom: 2px solid white; 
+            margin: 0 5px; 
+        }
+        .current{ 
+            border-bottom-color: #bd10c3; 
+        }
+        .keyboard{ 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 5px; 
+            margin-top: 20px; 
+        }
+        .key{
+            width: 35px; height: 35px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .key:hover{ 
+            background: rgba(255, 255, 255, 0.2); 
+        }
+        .wrong{ 
+            background: #d63031; 
+        }
+        .wrong-count{ 
+            color: #ff6b6b; 
+            margin-bottom: 10px; 
+        }
+        .win{ 
+            color: #00b894; 
+            margin: 10px
+        }
+        .lose{ 
+            color: #e94560; 
+            margin: 10px
+        }
+        @media(max-width: 480px){
+            .container{ 
+                padding: 20px; 
+            }
+            .key{ 
+                width: 28px; 
+                height: 28px; 
+                font-size: 0.75rem; 
+            }
+            .word-display{ 
+                font-size: 1.5rem; 
+                letter-spacing: 5px; 
+            }
+            .letter{ 
+                width: 22px; 
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Hangman Game</h1>
-  <button id="startButton">Start Game</button>
-  <h2 id="question">Question: </h2>
-  <div id="answer"></div>
-  <div id="letters"></div>
-  <div id="dangle"></div>
+    <div class="container">
+        <h1>Монгол Hangman</h1>
+        
+        <div id="startScreen">
+            <button class="btn btn-start" onclick="showCategories()">Эхлэх</button>
+            <button class="btn btn-rules" onclick="showRules()">Дүрэм</button>
+        </div>
+        <div id="categoryScreen" class="hidden"></div>
+        <div id="gameScreen" class="hidden">
+            <div class="question" id="question"></div>
+            <div class="wrong-count" id="wrongDisplay"></div>
+            <div class="hangman-img">
+                <img id="hangmanImg" src="0.png">
+            </div>
+            <div class="word-display" id="wordDisplay"></div>
+            <div class="keyboard" id="keyboard"></div>
+            <div id="result"></div>
+        </div>
+        <div id="rulesModal" class="modal">
+            <div class="modal-content">
+                <h2>Дүрэм</h2>
+                <ul>
+                    <li>Үсгийг дарааллаар таана</li>
+                    <li>6 удаа буруу бол хожигдоно</li>
+                </ul>
+                <button class="btn btn-start" onclick="hideRules()">Буцах</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var alphabet = ['А','Б','В','Г','Д','Е','Ё','Ж','З','И','Й','К','Л','М','Н','О','Ө','П','Р','С','Т','У','Ү','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' '];
+        var categories={
+            'Оньсого':{
+                questions: ['Мөсөн дээр мөнгөн аяга, тэр юу вэ?', 'Түнтгэр өвгөн түмэн жадтай, тэр юу вэ?', 'Торхон дотор тос ус хоёр, тэр юу вэ?'],
+                answers: ['САР', 'ЗАРАА', 'ӨНДӨГ']
+            },
+            'Монгол түүхэн хүмүүс':{
+                questions: ['Чингис хааны эцэг', 'Чингис хааны төрсөн он', 'Их монгол улс хэзээ байгуулагдсан бэ?', 'Юань гүрний үүсгэн байгуулагч'],
+                answers: ['ЕСҮХЭЙ', '1162', '1206', 'ХУБИЛАЙ']
+            },
+            'Танин мэдэхүй':{
+                questions: ['Монгол улсын хамгийн гүн нуур', 'Монгол улсын хамгийн урт гол', 'Монгол улсын төв цэг ямар аймагт байдаг вэ?'],
+                answers: ['ХӨВСГӨЛ', 'ОРХОН', 'Өвөрхангай']
+            },
+            'Шүлэгний хэсгээс шүлэг таах':{
+                questions: ['Аргалын утаа боргилсон <br>Малчны гэрт төрсөн би', 'Хэнтий Хангай Соёны өндөр сайхан нуруунууд'],
+                answers: ['БИ МОНГОЛ ХҮН', 'МИНИЙ НУТАГ']
+            }
+        };
+        var currentWord='sdf';
+        var curidx=0;
+        var wrngcnt=0;
+        var playing=false;
+        function showRules(){
+            document.getElementById('rulesModal').style.display='flex';
+        }
+        function hideRules(){
+            document.getElementById('rulesModal').style.display='none';
+        }
+        function showCategories(){
+            document.getElementById('startScreen').className='hidden';
+            document.getElementById('gameScreen').className='hidden';
+            document.getElementById('categoryScreen').className='';
+            var html='<h2>Ангилал сонгох</h2>';
+            var keys=Object.keys(categories);
+            for (var i=0; i<keys.length; i++){
+                html += '<button class="category-btn" onclick="startGame(\'' + keys[i] + '\')">' + keys[i] + '</button>';
+            }
+            document.getElementById('categoryScreen').innerHTML=html;
+        }
+        function startGame(catName){
+            var cat = categories[catName];
+            var rndmidx = Math.floor(Math.random() * cat.questions.length);
+            currentWord = cat.answers[rndmidx];
+            curidx = 0;
+            wrngcnt = 0;
+            playing = true;
+            document.getElementById('categoryScreen').className = 'hidden';
+            document.getElementById('gameScreen').className = '';
+            document.getElementById('question').innerHTML = cat.questions[rndmidx];
+            document.getElementById('wrongDisplay').innerHTML = 'Алдаа: 0/6';
+            document.getElementById('hangmanImg').src = '0.png';
+            document.getElementById('result').innerHTML = '';
+            updateWord();
+            createKeyboard();
+        }
+        function updateWord(){
+            var html = '';
+            for (var i=0; i<currentWord.length; i++){
+                if(i < curidx){
+                    html+='<span class="letter">'+currentWord[i]+'</span>';
+                } 
+                else if(i===curidx){
+                    html+='<span class="letter current"></span>';
+                } else {
+                    html+='<span class="letter"></span>';
+                }
+            }
+            document.getElementById('wordDisplay').innerHTML=html;
+        }
 
-  <script src="hangman.js"></script>
+        function createKeyboard(){
+            var html='';
+            for (var i=0; i<alphabet.length; i++) {
+                html += '<button class="key" onclick="guess(\'' + alphabet[i] + '\', this)">' + alphabet[i] + '</button>';
+            }
+            document.getElementById('keyboard').innerHTML=html;
+        }
+        function resetKeyboard(){
+            var keys=document.getElementById('keyboard').getElementsByTagName('button');
+            for (var i=0; i<keys.length; i++){
+                keys[i].className = 'key';
+                keys[i].disabled = false;
+            }
+        }
+        function guess(letter, btn){
+            if(!playing) return;
+            if(letter===currentWord[curidx]){
+                curidx++;
+                resetKeyboard();
+                updateWord();
+                if (curidx === currentWord.length){
+                    playing=false;
+                    showResult(true);
+                }
+            } 
+            else{
+                btn.className='key wrong';
+                btn.disabled=true;
+                wrngcnt++;
+                document.getElementById('wrongDisplay').innerHTML = 'Буруу: ' + wrngcnt + '/6';
+                document.getElementById('hangmanImg').src = wrngcnt + '.png';
+                if (wrngcnt>=6){
+                    playing=false;
+                    showResult(false);
+                }
+            }
+        }
+        function showResult(won){
+            document.getElementById('keyboard').innerHTML = '';
+            var html='<h2 class="' + (won ? 'win' : 'lose') + '">' + (won ? 'Зөв таалаа!' : 'Хожигдлоо!') + '</h2>';
+            html+='<p style="margin: 10px; font-weight:600">Хариулт: ' + currentWord + '</p>';
+            html+='<button class="btn btn-start" onclick="showCategories()">Дахин тоглох</button>';
+            document.getElementById('result').innerHTML = html;
+        }
+    </script>
 </body>
 </html>
