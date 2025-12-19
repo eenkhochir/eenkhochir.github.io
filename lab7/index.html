@@ -13,7 +13,7 @@
         body{
             font-family: Arial, sans-serif;
             color: white;
-            min-height: 100vh;
+            height: 100vh;
             background: url('bg.png') no-repeat center center fixed;
             background-size: cover;
             display: flex;
@@ -41,37 +41,38 @@
             cursor: pointer;
             margin: 5px;
         }
-        .btn-start{ 
+        .startbtn{ 
             background: #0e15a3; 
             color: white; 
         }
-        .btn-rules{ 
+        .rulesbtn{ 
             background: transparent; 
             color: #1725be; 
             border: 2px solid #1329d1; 
             font: bold; 
         }
-        .modal{
+        .main{
             display: none;
             position: fixed;
-            top: 0; left: 0;
+            top: 0; 
+            left: 0;
             width: 100%; height: 100%;
             background: rgba(0,0,0,0.1);
             justify-content: center;
             align-items: center;
         }
-        .modal-content{
+        .maindiv{
             background: rgba(0, 0, 0, 0.9);
             padding: 25px;
             border-radius: 10px;
             max-width: 400px;
             text-align: left;
         }
-        .modal-content h2{ 
+        .maindiv h2{ 
             color: #0c13cc; 
             margin-bottom: 15px; 
         }
-        .modal-content ul{ 
+        .maindiv ul{ 
             padding-left: 20px; 
             line-height: 1.8; 
             margin-bottom: 20px; 
@@ -79,7 +80,7 @@
         .hidden{ 
             display: none; 
         }
-        .category-btn{
+        .cat-btn{
             display: block;
             width: 100%;
             padding: 15px;
@@ -87,11 +88,11 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            font-size: 1rem;
+            font-size: 16px;
             border-radius: 8px;
             cursor: pointer;
         }
-        .category-btn:hover{ 
+        .cat-btn:hover{ 
             border-color: #0733e4; 
             background: rgba(33, 19, 231, 0.2); 
         }
@@ -104,14 +105,14 @@
         .hangman-img{ 
             width: 150px; 
             height: 150px; 
-            margin: 20px auto; 
+            margin: 20px; 
         }
         .hangman-img img{ 
             max-width: 100%; 
             max-height: 100%; 
         }
-        .word-display{ 
-            font-size: 2rem; 
+        .word{ 
+            font-size: 30px; 
             letter-spacing: 10px; 
             margin: 20px 0; 
         }
@@ -132,13 +133,14 @@
             margin-top: 20px; 
         }
         .key{
-            width: 35px; height: 35px;
+            width: 35px; 
+            height: 35px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 15px;
         }
         .key:hover{ 
             background: rgba(255, 255, 255, 0.2); 
@@ -165,10 +167,10 @@
             .key{ 
                 width: 28px; 
                 height: 28px; 
-                font-size: 0.75rem; 
+                font-size: 12px; 
             }
-            .word-display{ 
-                font-size: 1.5rem; 
+            .word{ 
+                font-size: 24px; 
                 letter-spacing: 5px; 
             }
             .letter{ 
@@ -180,10 +182,9 @@
 <body>
     <div class="container">
         <h1>Монгол Hangman</h1>
-        
-        <div id="startScreen">
-            <button class="btn btn-start" onclick="showCategories()">Эхлэх</button>
-            <button class="btn btn-rules" onclick="showRules()">Дүрэм</button>
+        <div id="startscr">
+            <button class="btn startbtn" onclick="showcat()">Эхлэх</button>
+            <button class="btn rulesbtn" onclick="showrules()">Дүрэм</button>
         </div>
         <div id="categoryScreen" class="hidden"></div>
         <div id="gameScreen" class="hidden">
@@ -192,18 +193,18 @@
             <div class="hangman-img">
                 <img id="hangmanImg" src="0.png">
             </div>
-            <div class="word-display" id="wordDisplay"></div>
+            <div class="word" id="wordDisplay"></div>
             <div class="keyboard" id="keyboard"></div>
             <div id="result"></div>
         </div>
-        <div id="rulesModal" class="modal">
-            <div class="modal-content">
+        <div id="rulesmain" class="main">
+            <div class="maindiv">
                 <h2>Дүрэм</h2>
                 <ul>
                     <li>Үсгийг дарааллаар таана</li>
                     <li>6 удаа буруу бол хожигдоно</li>
                 </ul>
-                <button class="btn btn-start" onclick="hideRules()">Буцах</button>
+                <button class="btn startbtn" onclick="hideRules()">Буцах</button>
             </div>
         </div>
     </div>
@@ -227,48 +228,48 @@
                 answers: ['БИ МОНГОЛ ХҮН', 'МИНИЙ НУТАГ']
             }
         };
-        var currentWord='sdf';
+        var curword='sdf';
         var curidx=0;
         var wrngcnt=0;
         var playing=false;
-        function showRules(){
-            document.getElementById('rulesModal').style.display='flex';
+        function showrules(){
+            document.getElementById('rulesmain').style.display='flex';
         }
         function hideRules(){
-            document.getElementById('rulesModal').style.display='none';
+            document.getElementById('rulesmain').style.display='none';
         }
-        function showCategories(){
-            document.getElementById('startScreen').className='hidden';
+        function showcat(){
+            document.getElementById('startscr').className='hidden';
             document.getElementById('gameScreen').className='hidden';
             document.getElementById('categoryScreen').className='';
             var html='<h2>Ангилал сонгох</h2>';
             var keys=Object.keys(categories);
             for (var i=0; i<keys.length; i++){
-                html += '<button class="category-btn" onclick="startGame(\'' + keys[i] + '\')">' + keys[i] + '</button>';
+                html+='<button class="cat-btn" onclick="startGame(\'' + keys[i] + '\')">' + keys[i] + '</button>';
             }
             document.getElementById('categoryScreen').innerHTML=html;
         }
         function startGame(catName){
-            var cat = categories[catName];
-            var rndmidx = Math.floor(Math.random() * cat.questions.length);
-            currentWord = cat.answers[rndmidx];
-            curidx = 0;
-            wrngcnt = 0;
-            playing = true;
-            document.getElementById('categoryScreen').className = 'hidden';
-            document.getElementById('gameScreen').className = '';
-            document.getElementById('question').innerHTML = cat.questions[rndmidx];
-            document.getElementById('wrongDisplay').innerHTML = 'Алдаа: 0/6';
-            document.getElementById('hangmanImg').src = '0.png';
-            document.getElementById('result').innerHTML = '';
-            updateWord();
-            createKeyboard();
+            var cat=categories[catName];
+            var rndmidx=Math.floor(Math.random()*cat.questions.length);
+            curword=cat.answers[rndmidx];
+            curidx=0;
+            wrngcnt=0;
+            playing=true;
+            document.getElementById('categoryScreen').className='hidden';
+            document.getElementById('gameScreen').className='';
+            document.getElementById('question').innerHTML=cat.questions[rndmidx];
+            document.getElementById('wrongDisplay').innerHTML='Алдаа: 0/6';
+            document.getElementById('hangmanImg').src='0.png';
+            document.getElementById('result').innerHTML='';
+            updateword();
+            keyboardcreate();
         }
-        function updateWord(){
+        function updateword(){
             var html = '';
-            for (var i=0; i<currentWord.length; i++){
-                if(i < curidx){
-                    html+='<span class="letter">'+currentWord[i]+'</span>';
+            for (var i=0; i<curword.length; i++){
+                if(i<curidx){
+                    html+='<span class="letter">'+curword[i]+'</span>';
                 } 
                 else if(i===curidx){
                     html+='<span class="letter current"></span>';
@@ -278,50 +279,49 @@
             }
             document.getElementById('wordDisplay').innerHTML=html;
         }
-
-        function createKeyboard(){
+        function keyboardcreate(){
             var html='';
-            for (var i=0; i<alphabet.length; i++) {
-                html += '<button class="key" onclick="guess(\'' + alphabet[i] + '\', this)">' + alphabet[i] + '</button>';
+            for (var i=0; i<alphabet.length; i++){
+                html+='<button class="key" onclick="guess(\'' + alphabet[i] + '\', this)">' + alphabet[i] + '</button>';
             }
             document.getElementById('keyboard').innerHTML=html;
         }
         function resetKeyboard(){
             var keys=document.getElementById('keyboard').getElementsByTagName('button');
             for (var i=0; i<keys.length; i++){
-                keys[i].className = 'key';
-                keys[i].disabled = false;
+                keys[i].className='key';
+                keys[i].disabled=false;
             }
         }
         function guess(letter, btn){
             if(!playing) return;
-            if(letter===currentWord[curidx]){
+            if(letter===curword[curidx]){
                 curidx++;
                 resetKeyboard();
-                updateWord();
-                if (curidx === currentWord.length){
+                updateword();
+                if (curidx===curword.length){
                     playing=false;
                     showResult(true);
                 }
             } 
             else{
-                btn.className='key wrong';
+                btn.className='wrong key';
                 btn.disabled=true;
                 wrngcnt++;
-                document.getElementById('wrongDisplay').innerHTML = 'Буруу: ' + wrngcnt + '/6';
-                document.getElementById('hangmanImg').src = wrngcnt + '.png';
-                if (wrngcnt>=6){
+                document.getElementById('wrongDisplay').innerHTML='Буруу: '+wrngcnt+'/6';
+                document.getElementById('hangmanImg').src = wrngcnt+'.png';
+                if(wrngcnt>=6){
                     playing=false;
                     showResult(false);
                 }
             }
         }
         function showResult(won){
-            document.getElementById('keyboard').innerHTML = '';
-            var html='<h2 class="' + (won ? 'win' : 'lose') + '">' + (won ? 'Зөв таалаа!' : 'Хожигдлоо!') + '</h2>';
-            html+='<p style="margin: 10px; font-weight:600">Хариулт: ' + currentWord + '</p>';
-            html+='<button class="btn btn-start" onclick="showCategories()">Дахин тоглох</button>';
-            document.getElementById('result').innerHTML = html;
+            document.getElementById('keyboard').innerHTML='';
+            var html='<h2 class="'+(won ? 'win' : 'lose')+'">'+(won ? 'Зөв таалаа!' : 'Хожигдлоо!')+'</h2>';
+            html+='<p style="margin: 10px; font-weight:600">Хариулт: '+curword+'</p>';
+            html+='<button class="btn startbtn" onclick="showcat()">Дахин тоглох</button>';
+            document.getElementById('result').innerHTML=html;
         }
     </script>
 </body>

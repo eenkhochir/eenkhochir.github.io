@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бие даалтын ажил: Шивэлтийн веб</title>
+    <style>
+        *{ 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        body{
+            font-family: Arial, sans-serif;
+            color: white;
+            /* height:100%; */
+            height: 100vh;
+            background: url('bg.png') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container{
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 30px;
+            border-radius: 15px;
+        }
+        h1{ 
+            color: #003cee; 
+            margin-bottom: 20px; 
+        }
+        .btn{
+            padding: 12px 30px;
+            font-size: 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            background: #2a0cf0;
+            color: white;
+        }
+        .hidden{ 
+            display: none; 
+        }
+        .stats{
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .statsdiv{
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+        }
+        .statsdiv span{ 
+            display: block; 
+            font-size: 25px; 
+            color: #0034ee; 
+        }
+        .text-display{
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .typed{ 
+            color: #00b894; 
+        }
+        .cur { 
+            background: #e945d3; 
+            color: white; 
+        }
+        .input-box{
+            width: 100%;
+            padding: 15px;
+            font-size: 15px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .result h2{ 
+            color: #00b894; 
+            margin-bottom: 15px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Шивэлтийн веб</h1>
+        <div id="intro">
+            <p style="margin-bottom: 20px;">Эхлэх дээр дарж эхэлнэ үү</p>
+            <button class="btn" onclick="start()">Эхлэх</button>
+        </div>
+        <div id="main" class="hidden">
+            <div class="stats">
+                <div class="statsdiv">Хугацаа<span id="timer">60</span></div>
+                <div class="statsdiv">WPM<span id="wpm">0</span></div>
+            </div>
+            <div class="text-display" id="textDisplay"></div>
+            <input type="text" class="input-box" id="inp" placeholder="Шивж эхлэх...">
+        </div>
+        <div id="result" class="hidden">
+            <div class="result">
+                <h2>Дууслаа</h2>
+                <p style="margin-bottom: 10px">WPM: <span id="last">0</span></p>
+                <button class="btn" onclick="start()">Дахин оролдох</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var texts=[
+            "Миний найзын нэр Батбаатар. Тэр манай ангид сурдаг. Бид хоёр багын найз. Хоёр жил хамт хурдан морь унаж байгаа. Батбаатарын аав уяач. Наадамд олон морь уядаг. Батбаатар өнгөрсөн жил их насны морь унаж аймагт түрүүлсэн. Тэр морио яаж давхиулах, хэзээ амыг нь татах, хэзээ сул тавих, хаана ташуур өгөх вэ гэдгийг сайн мэддэг. Маш сайхан гийнгоолдог. Батбаатарыг гийнгоолоход морьд сэргэдэг гэж аав минь ярьдаг. Миний найз их ухаантай хүүхэд.",
+            "Манайх Төв аймгийн Баян-Өнжүүл сумын айл. Зундаа Гашуун хэмээх газарт нутаглана. Говь нутагт ус ховор. Гашуунд л гэхэд ус сайтай ганцхан худаг бий. Говийн зун аагим халуун. Бог малаа өдөртөө, бод малаа өнжөөд услахгүй бол болохгүй. Ангасан мал ус уух гэсэндээ худаг руу дайрах нь олон. Малаа услах гэж малчид худаг дээр ээлжээ хүлээн удаан зогсох хэрэгтэй болдог. Тиймээс манай гэрийнхэн үүр цаймагц босоцгооно. Хонь, ямаагаа тууж аваачин эрт усалдаг юм. “Бар цагт босвол өдрийн ажил бүтнэ, бага насандаа сурвал насны хэрэг бүтнэ” гэж өвөө маань сургана. Ус ховор тул манай говийнхон маш ариг гамтай хэрэглэдэг."
+        ];
+        var curtext='';
+        var curidx=0;
+        var timer=60;
+        var interval;
+        var started=false;
+        function start(){
+            document.getElementById('intro').className='hidden';
+            document.getElementById('result').className='hidden';
+            document.getElementById('main').className='';
+            var rndm = Math.floor(Math.random()*texts.length);
+            curtext=texts[rndm];
+            curidx=0;
+            timer=60;
+            started=false;
+            document.getElementById('timer').innerHTML=timer;
+            document.getElementById('wpm').innerHTML='0';
+            document.getElementById('inp').value='';
+            upd();
+        }
+        function upd(){
+            var html='';
+            for (var i=0; i<curtext.length; i++){
+                if(i<curidx){
+                    html+='<span class="typed">'+curtext[i]+'</span>';
+                } 
+                else if(i===curidx){
+                    html+='<span class="cur">'+curtext[i]+'</span>';
+                } 
+                else{
+                    html+=curtext[i];
+                }
+            }
+            document.getElementById('textDisplay').innerHTML=html;
+        }
+        function timerstart(){
+            interval = setInterval(function(){
+                timer--;
+                document.getElementById('timer').innerHTML=timer;
+                var minutes=(60-timer)/60;
+                var wpm = Math.round((curidx/6)/minutes);
+                document.getElementById('wpm').innerHTML=wpm;
+                if (timer<=0) {
+                    end();
+                }
+            }, 1000);
+        }
+        function end(){
+            clearInterval(interval);
+            var minutes=(60-timer)/60;
+            var wpm=Math.round((curidx/7)/minutes);
+            document.getElementById('main').className='hidden';
+            document.getElementById('result').className='';
+            document.getElementById('last').innerHTML=wpm;
+        }
+        document.getElementById('inp').onkeypress=function(e){
+            if(!started){
+                started=true;
+                timerstart();
+            }
+            var char=e.key;
+            if (char===curtext[curidx]){
+                curidx++;
+                upd();
+                if(curidx>=curtext.length){
+                    var rndm = Math.floor(Math.random()*texts.length);
+                    curtext=texts[rndm];
+                    curidx=0;
+                    document.getElementById('inp').value='';
+                    upd();
+                }
+            }
+        };
+    </script>
+</body>
+</html>
